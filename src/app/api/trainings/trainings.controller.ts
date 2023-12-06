@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { TrainingsService } from './trainings.service';
+import { TrainingNomination } from './utils/trainings.type';
 
 @Controller('trainings')
 export class TrainingsController {
@@ -13,5 +14,15 @@ export class TrainingsController {
   @Get('distributions/:training_distribution_id/recommended')
   async findTrainingRecommendedEmployeesByDistributionId(@Param('training_distribution_id') distributionId: string) {
     return await this.trainingsService.findTrainingRecommendedEmployeesByDistributionId(distributionId);
+  }
+
+  @Get('employees/:employee_id')
+  async findAllTrainingByEmployeeId(@Param('employee_id') employeeId: string) {
+    return await this.trainingsService.findAllTrainingByEmployeeId(employeeId);
+  }
+
+  @Put('')
+  async updateTrainingNomineesStatusById(@Body() trainingNomination: TrainingNomination) {
+    return await this.trainingsService.updateTrainingNomineesStatusById(trainingNomination);
   }
 }
