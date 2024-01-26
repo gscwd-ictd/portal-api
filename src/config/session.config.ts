@@ -27,7 +27,7 @@ export class AppSession {
           httpOnly: true,
           signed: true,
           secure: false,
-          maxAge: 8600000000,
+          maxAge: 86400000,
         },
       }),
     );

@@ -14,6 +14,16 @@ export class ChildrenService extends PdsCrudHelper<Child> {
     super(childRepository);
   }
 
+  async findChildren(employeeId: string) {
+    //return await this.childRepository.find({ where: { employeeId }, order: { birthDate: 'DESC' } });
+    return await this.childRepository
+      .createQueryBuilder()
+      .select()
+      .where({ employeeId })
+      .orderBy('birth_date', 'DESC')
+      .getMany();
+  }
+
   async updateChildren(updateChildDTO: UpdateChildrenDTO) {
     try {
       const children = await Promise.all(

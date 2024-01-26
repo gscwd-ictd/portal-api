@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { TrainingsService } from './trainings.service';
-import { TrainingNomination } from './utils/trainings.type';
+import { TrainingNomination, TrainingNominees } from './utils/trainings.type';
 
 @Controller('trainings')
 export class TrainingsController {
@@ -24,5 +24,10 @@ export class TrainingsController {
   @Put('')
   async updateTrainingNomineesStatusById(@Body() trainingNomination: TrainingNomination) {
     return await this.trainingsService.updateTrainingNomineesStatusById(trainingNomination);
+  }
+
+  @Post('nominees/')
+  async sendNomineesToHr(@Body() nominees: TrainingNominees) {
+    return await this.trainingsService.sendNomineesToHr(nominees);
   }
 }

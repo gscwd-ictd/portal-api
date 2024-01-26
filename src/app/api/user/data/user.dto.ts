@@ -20,3 +20,9 @@ export class CreateUserDto {
 
 //! omit _id in update dto
 export class UpdateUserDto extends CreateUserDto {}
+
+export class ChangePasswordDto {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
+}

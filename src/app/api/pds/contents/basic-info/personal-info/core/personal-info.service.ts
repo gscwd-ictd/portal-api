@@ -38,8 +38,8 @@ export class PersonalInfoService extends PdsCrudHelper<PersonalInfo> {
         )
       )[0].mobileNumber;
       //console.log(mobileNumber);
-      //const personalInfo = await this.findPdsByEmployeeId(employeeId);
-      const personalInfo = { name: 'asd' };
+      const personalInfo = await this.findPdsByEmployeeId(employeeId);
+      //const personalInfo = { name: 'asd' };
       console.log('\n', '**** ', employeeId, ' ', personalInfo, ' ', mobileNumber);
       return { mobileNumber, ...personalInfo };
     } catch (error) {
