@@ -9,3 +9,16 @@ export enum TrainingNominationStatus {
   ACCEPTED = 'accepted',
   DECLINED = 'declined',
 }
+
+export type TrainingNominees = {
+  trainingDistribution: string;
+  employees: {
+    employeeId: string;
+    nomineeType: NomineeType;
+  }[];
+};
+
+export enum NomineeType {
+  STAND_IN = 'stand-in',
+  NOMINEE = 'nominee',
+}
