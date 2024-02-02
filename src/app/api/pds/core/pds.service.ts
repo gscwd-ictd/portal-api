@@ -126,7 +126,7 @@ export class PdsService {
           }),
         );
 
-        let children = [];
+        const children = [];
         if (pdsDto.children.length > 0) {
           await Promise.all(
             pdsDto.children.map(async (child) => {
@@ -169,7 +169,7 @@ export class PdsService {
           );
         }
 
-        let vocational = [];
+        const vocational = [];
         if (pdsDto.vocational.length > 0) {
           await Promise.all(
             pdsDto.vocational.map(async (vocationalItem) => {
@@ -186,7 +186,7 @@ export class PdsService {
           );
         }
 
-        let college = [];
+        const college = [];
         if (pdsDto.college.length > 0) {
           await Promise.all(
             pdsDto.college.map(async (collegeItem) => {
@@ -203,7 +203,7 @@ export class PdsService {
           );
         }
 
-        let graduate = [];
+        const graduate = [];
         if (pdsDto.graduate.length > 0) {
           await Promise.all(
             pdsDto.graduate.map(async (graduateItem) => {
@@ -220,7 +220,7 @@ export class PdsService {
           );
         }
 
-        let eligibility = [];
+        const eligibility = [];
         if (pdsDto.eligibility.length > 0) {
           await Promise.all(
             pdsDto.eligibility.map(async (eligibilityItem) => {
@@ -243,7 +243,7 @@ export class PdsService {
           );
         }
 
-        let workExperience = [];
+        const workExperience = [];
         if (pdsDto.workExperience.length > 0) {
           await Promise.all(
             pdsDto.workExperience.map(async (workExperienceItem) => {
@@ -260,7 +260,7 @@ export class PdsService {
           );
         }
 
-        let voluntaryWork = [];
+        const voluntaryWork = [];
         if (pdsDto.voluntaryWork.length > 0) {
           await Promise.all(
             pdsDto.voluntaryWork.map(async (voluntaryWorkItem) => {
@@ -277,7 +277,7 @@ export class PdsService {
           );
         }
 
-        let learningDevelopment = [];
+        const learningDevelopment = [];
         if (pdsDto.learningDevelopment.length > 0) {
           await Promise.all(
             pdsDto.learningDevelopment.map(async (learningDevelopmentItem) => {
@@ -294,7 +294,7 @@ export class PdsService {
           );
         }
 
-        let skills = [];
+        const skills = [];
         if (pdsDto.skills.length > 0) {
           await Promise.all(
             pdsDto.skills.map(async (skill) => {
@@ -311,7 +311,7 @@ export class PdsService {
           );
         }
 
-        let organizations = [];
+        const organizations = [];
         if (pdsDto.organizations.length > 0) {
           await Promise.all(
             pdsDto.organizations.map(async (organization) => {
@@ -328,7 +328,7 @@ export class PdsService {
           );
         }
 
-        let recognitions = [];
+        const recognitions = [];
         if (pdsDto.recognitions.length > 0) {
           await Promise.all(
             pdsDto.recognitions.map(async (recognition) => {
@@ -394,7 +394,7 @@ export class PdsService {
           }),
         );
 
-        let references = [];
+        const references = [];
         if (pdsDto.references.length > 0) {
           await Promise.all(
             pdsDto.references.map(async (reference) => {
@@ -715,9 +715,11 @@ export class PdsService {
       const governmentIssuedIds = await this.governmentInfoService.findPdsByEmployeeId(employeeId);
       const permanentAddress = await this.permanentAddressService.findPdsByEmployeeId(employeeId);
       const residentialAddress = await this.residentialAddressService.findPdsByEmployeeId(employeeId);
-      const children = await this.childrenService.findAllPdsEmployeeId(employeeId);
+      const children = await this.childrenService.findChildren(employeeId);
       const spouse = await this.spouseService.findPdsByEmployeeId(employeeId);
       const parents = await this.parentsService.findPdsByEmployeeId(employeeId);
+
+      console.log('gobyerno id: ', governmentIssuedIds);
 
       const {
         fatherFirstName,
@@ -770,7 +772,8 @@ export class PdsService {
       const references = await this.referencesService.findAllPdsEmployeeId(employeeId);
 
       const governmentIssuedId = await this.governmentIssuedIdService.findPdsByEmployeeId(employeeId);
-      console.log(secondary);
+      console.log(personalInfo);
+      //console.log(secondary);
       return {
         personalInfo: { ...applicantInfo, ...personalInfo },
         governmentIssuedIds,

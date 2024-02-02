@@ -2,7 +2,7 @@ import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { MicroserviceType } from '../../../utils/types/microservice-type';
-import { TrainingNomination } from './utils/trainings.type';
+import { TrainingNomination, TrainingNominees } from './utils/trainings.type';
 
 @Injectable()
 export class TrainingsService {
@@ -46,5 +46,9 @@ export class TrainingsService {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
     }
+  }
+
+  async sendNomineesToHr(trainingNominees: TrainingNominees) {
+    return await lastValueFrom(this.client.send('add_nominees_by_training_distribution_id', trainingNominees));
   }
 }

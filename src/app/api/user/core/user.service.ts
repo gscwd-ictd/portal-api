@@ -1,11 +1,18 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthenticatedUser, UserCredentials } from '../../../../utils/types/auth-type';
 import { DataSource, Repository } from 'typeorm';
 import { CrudHelper } from '../../../../utils/helpers/crud';
 import { PendingUser } from '../../pending-user/data/pending-user.entity';
-import { CreateUserDto } from '../data/user.dto';
+import { ChangePasswordDto, CreateUserDto } from '../data/user.dto';
 import { User } from '../data/user.entity';
 import { PasswordService } from '../misc/password.service';
 import { PendingUserService } from '../../pending-user/core/pending-user.service';
@@ -14,6 +21,7 @@ import { EmployeeService } from '../../employee/core/employee.service';
 import { Employee, Sex } from '../../employee/data/employee.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { MicroserviceType } from 'src/utils/types/microservice-type';
+import { hash } from 'argon2';
 
 @Injectable()
 export class UserService extends CrudHelper<User> {
@@ -91,6 +99,13 @@ export class UserService extends CrudHelper<User> {
     return result;
   }
 
+  async verifyPassword(credentials: UserCredentials) {
+    const user = await this.findUserByEmail(credentials.email);
+    console.log(user);
+    // verify if password is valid
+    return await this.passwordService.verifyPassword(user.password, credentials.password);
+  }
+
   async verifyUser(credentials: UserCredentials): Promise<AuthenticatedUser> {
     // find user via email
     const user = await this.findUserByEmail(credentials.email);
@@ -146,9 +161,28 @@ export class UserService extends CrudHelper<User> {
     request.session.destroy(() => null);
   }
 
+  async changePassword(changePasswordDto: ChangePasswordDto) {
+    const { email, newPassword, oldPassword } = changePasswordDto;
+    const validUser = await this.verifyPassword({ email, password: oldPassword });
+    if (validUser) {
+      const hashedPassword = await this.passwordService.hashPassword(newPassword);
+      const updateResult = await this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({ password: hashedPassword })
+        .where({ email })
+        .execute();
+      console.log(hashedPassword);
+      if (updateResult.affected > 0) return changePasswordDto;
+      throw new InternalServerErrorException();
+    }
+
+    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  }
+
   async populateUsers() {
-    const employees = await this.employeeService.getEmployeesForPopulation();
-    return employees;
+    //const employees = await this.employeeService.getEmployeesForPopulation();
+    //return employees;
     // const passwords = [
     //   'zVk3xrkh',
     //   'NQuBHDVq',
@@ -167,15 +201,11 @@ export class UserService extends CrudHelper<User> {
     /*const squirts = await this.passwordService.hashPassword('@mikhailanthony2021021');
     const alexis = await this.passwordService.hashPassword('@alexis2021020');
     const twinkle = await this.passwordService.hashPassword('@eleaglen2022036');
-    const cara = await this.passwordService.hashPassword('@carajade2021019');
+    const cara = await this.passwordService.hashPassword('@carajade2021019');*/
     const rv = await this.passwordService.hashPassword('@ricardovicente2021022');
     return {
-      squirts,
-      alexis,
-      twinkle,
-      cara,
       rv,
-    };*/
+    };
     // const result = await this.dataSource.transaction(async (manager) => {
     //   const userResults = await Promise.all(
     //     employees.map(async (employee) => {

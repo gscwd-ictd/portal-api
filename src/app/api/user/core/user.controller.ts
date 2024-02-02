@@ -1,11 +1,11 @@
 import { PasswordService } from './../misc/password.service';
-import { Body, Controller, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from '../../../../global/guards/authenticated.guard';
 import { User } from '../../../../global/decorators/user.decorator';
 import { LoginGuard } from '../../../../global/guards/login.guard';
-import { AuthenticatedUser } from '../../../../utils/types/auth-type';
+import { AuthenticatedUser, UserCredentials } from '../../../../utils/types/auth-type';
 import { UserService } from '../core/user.service';
-import { CreateUserDto } from '../data/user.dto';
+import { ChangePasswordDto, CreateUserDto } from '../data/user.dto';
 import { Request, Response } from 'express';
 import { EmployeeService } from '../../employee/core/employee.service';
 import { PendingUserService } from '../../pending-user/core/pending-user.service';
@@ -29,6 +29,11 @@ export class UserController {
     const profile = await this.employeeService.findRecordByUserId(user._id);
 
     return { user, employmentDetails, profile };
+  }
+
+  @Post('web/verify-password/')
+  async verifyPassword(@Body() credentials: UserCredentials) {
+    return await this.userService.verifyPassword(credentials);
   }
 
   @UseGuards(AuthenticatedGuard)
@@ -60,6 +65,11 @@ export class UserController {
   async signup(@Body() createUserDto: CreateUserDto) {
     console.log(createUserDto);
     return await this.userService.createUser(createUserDto);
+  }
+
+  @Patch('web/change-password/')
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    return await this.userService.changePassword(changePasswordDto);
   }
 
   @Get('populate')
