@@ -46,7 +46,9 @@ export class EmployeeService extends CrudHelper<Employee> {
           [employeeId],
         )
       )[0];
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getEmployeeFullName(employeeId: string) {
