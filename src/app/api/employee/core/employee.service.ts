@@ -6,7 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Employee } from '../data/employee.entity';
 import { MicroserviceType } from '../../../../utils/types/microservice-type';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
+import { last, lastValueFrom } from 'rxjs';
 import { GET_EMPLOYEE_DETAILS } from '../../../../utils/constants/microservice-patterns';
 import { CreateEmployeeDto } from '../data/employee.dto';
 import { PendingUser } from '../../pending-user/data/pending-user.entity';
@@ -46,7 +46,9 @@ export class EmployeeService extends CrudHelper<Employee> {
           [employeeId],
         )
       )[0];
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getEmployeeFullName(employeeId: string) {
@@ -139,5 +141,21 @@ export class EmployeeService extends CrudHelper<Employee> {
     const pdsPersonalInfo = await this.personalInfoService.findPdsByEmployeeId(employeeId);
     const employeeDetails = await this.findRecordByUserId(employeeId);
     return { pdsPersonalInfo, employeeDetails };
+  }
+
+  async isPdcChairman(employeeId: string) {
+    try {
+      return await lastValueFrom(this.client.send('is_pdc_chairman', employeeId));
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  async isPdcSecretariat(employeeId: string) {
+    try {
+      return await lastValueFrom(this.client.send('is_pdc_secretariat', employeeId));
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 }

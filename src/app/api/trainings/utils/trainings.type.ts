@@ -22,3 +22,23 @@ export enum NomineeType {
   STAND_IN = 'stand-in',
   NOMINEE = 'nominee',
 }
+
+export type PdcChairmanApproval = {
+  pdcChairman: string;
+  trainingDetails: string;
+};
+
+export type PdcSecretariatApproval = {
+  pdcSecretary: string;
+  trainingDetails: string;
+};
+
+export type TrainingListItem = {
+  distributionId: string;
+  nomineeType?: NomineeType;
+};
+
+export type NomineeTrainingStatusType = {
+  employeeId: string;
+  status: TrainingNominationStatus;
+};
