@@ -7,7 +7,7 @@ export const User = createParamDecorator((data: AuthenticatedUser, context: Exec
 
   // set the data to the current user in session
   data = request.session.user;
-  console.log(data);
+  console.log('as asd asdd', data);
   // return the data
   return data;
 });
