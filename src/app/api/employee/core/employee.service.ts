@@ -63,6 +63,7 @@ export class EmployeeService extends CrudHelper<Employee> {
   async getEmployeeDetailsFromHr(hrEmployeeId: string) {
     try {
       const employeeDetails = await lastValueFrom(this.client.send(GET_EMPLOYEE_DETAILS, hrEmployeeId));
+      console.log(employeeDetails);
       //console.log(hrEmployeeId);
       //console.log('employee details: ', employeeDetails);
       // const { sex } = await this.employeeRepository.findOne({

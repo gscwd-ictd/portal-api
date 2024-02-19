@@ -14,7 +14,7 @@ export class LoginGuard implements CanActivate {
     const user = await this.userService.verifyUser(request.body as UserCredentials);
     console.log('asd ', user);
     // set userId as session
-    request.session.user.email = user;
+    request.session.user = user;
 
     // allow the request
     return true;
