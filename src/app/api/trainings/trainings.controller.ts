@@ -2,9 +2,12 @@ import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from
 import { TrainingsService } from './trainings.service';
 import {
   GmApproval,
+  GmDecline,
   NomineeType,
   PdcChairmanApproval,
+  PdcChairmanDecline,
   PdcSecretariatApproval,
+  PdcSecretariatDecline,
   TrainingNomination,
   TrainingNominationStatus,
   TrainingNominees,
@@ -52,8 +55,8 @@ export class TrainingsController {
 
   @UseGuards(PdcChairmanGuard)
   @Patch('decline/chairman')
-  async pdcChairmanDecline(@Body() pdcChairmanApproval: PdcChairmanApproval) {
-    return await this.trainingsService.pdsChairmanDecline(pdcChairmanApproval);
+  async pdcChairmanDecline(@Body() pdcChairmanDecline: PdcChairmanDecline) {
+    return await this.trainingsService.pdsChairmanDecline(pdcChairmanDecline);
   }
 
   @UseGuards(PdcSecretaryGuard)
@@ -64,8 +67,8 @@ export class TrainingsController {
 
   @UseGuards(PdcSecretaryGuard)
   @Patch('decline/secretariat')
-  async pdcSecretariatDecline(@Body() pdcSecretariatApproval: PdcSecretariatApproval) {
-    return await this.trainingsService.pdsSecretariatDecline(pdcSecretariatApproval);
+  async pdcSecretariatDecline(@Body() pdcSecretariatDecline: PdcSecretariatDecline) {
+    return await this.trainingsService.pdsSecretariatDecline(pdcSecretariatDecline);
   }
 
   @UseGuards(PdcChairmanGuard)
@@ -102,7 +105,7 @@ export class TrainingsController {
 
   @UseGuards(GmGuard)
   @Patch('decline/gm')
-  async gmDecline(@Body() gmApproval: GmApproval) {
-    return await this.trainingsService.gmDecline(gmApproval);
+  async gmDecline(@Body() gmDecline: GmDecline) {
+    return await this.trainingsService.gmDecline(gmDecline);
   }
 }
