@@ -38,6 +38,11 @@ export type TrainingListItem = {
   nomineeType?: NomineeType;
 };
 
+export type GmApproval = {
+  generalManager: string;
+  trainingDetails: string;
+};
+
 export type NomineeTrainingStatusType = {
   employeeId: string;
   status: TrainingNominationStatus;
