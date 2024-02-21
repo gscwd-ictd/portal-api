@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { TrainingsService } from './trainings.service';
 import {
+  GmApproval,
   NomineeType,
   PdcChairmanApproval,
   PdcSecretariatApproval,
@@ -8,7 +9,7 @@ import {
   TrainingNominationStatus,
   TrainingNominees,
 } from './utils/trainings.type';
-import { PdcChairmanGuard, PdcSecretaryGuard } from './guards/training.guard';
+import { GmGuard, PdcChairmanGuard, PdcSecretaryGuard } from './guards/training.guard';
 import { EmployeeService } from '../employee/core/employee.service';
 
 @Controller('trainings')
@@ -73,5 +74,17 @@ export class TrainingsController {
       nomineeType,
       distributionId,
     });
+  }
+
+  @UseGuards(GmGuard)
+  @Get('approval/gm')
+  async findGmApproval() {
+    return await this.trainingsService.findGmApproval();
+  }
+
+  @UseGuards(GmGuard)
+  @Patch('approval/gm')
+  async gmApproval(@Body() gmApproval: GmApproval) {
+    return await this.trainingsService.gmApproval(gmApproval);
   }
 }

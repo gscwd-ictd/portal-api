@@ -3,6 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { MicroserviceType } from '../../../utils/types/microservice-type';
 import {
+  GmApproval,
   NomineeTrainingStatusType,
   PdcChairmanApproval,
   PdcSecretariatApproval,
@@ -102,6 +103,25 @@ export class TrainingsService {
   async listOfNomineesByDistributionId(trainingListItem: TrainingListItem) {
     try {
       return await lastValueFrom(this.client.send('find_training_nominees_by_distribution_id', trainingListItem));
+    } catch {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async gmApproval(gmApproval: GmApproval) {
+    try {
+      const result = await lastValueFrom(this.client.send('for_gm_approval', gmApproval));
+      if (result.affected > 0) return gmApproval;
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException(error, 500);
+    }
+  }
+
+  async findGmApproval() {
+    try {
+      return await lastValueFrom(this.client.send('find_all_gm_approval', {}));
     } catch {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
