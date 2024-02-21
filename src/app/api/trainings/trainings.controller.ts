@@ -50,10 +50,22 @@ export class TrainingsController {
     return await this.trainingsService.pdcChairmanApproval(pdcChairmanApproval);
   }
 
-  //@UseGuards(PdcSecretaryGuard)
+  @UseGuards(PdcChairmanGuard)
+  @Patch('decline/chairman')
+  async pdcChairmanDecline(@Body() pdcChairmanApproval: PdcChairmanApproval) {
+    return await this.trainingsService.pdsChairmanDecline(pdcChairmanApproval);
+  }
+
+  @UseGuards(PdcSecretaryGuard)
   @Patch('approval/secretariat')
   async pdcSecretariatApproval(@Body() pdcSecretariatApproval: PdcSecretariatApproval) {
     return await this.trainingsService.pdsSecretariatApproval(pdcSecretariatApproval);
+  }
+
+  @UseGuards(PdcSecretaryGuard)
+  @Patch('decline/secretariat')
+  async pdcSecretariatDecline(@Body() pdcSecretariatApproval: PdcSecretariatApproval) {
+    return await this.trainingsService.pdsSecretariatDecline(pdcSecretariatApproval);
   }
 
   @UseGuards(PdcChairmanGuard)
@@ -86,5 +98,11 @@ export class TrainingsController {
   @Patch('approval/gm')
   async gmApproval(@Body() gmApproval: GmApproval) {
     return await this.trainingsService.gmApproval(gmApproval);
+  }
+
+  @UseGuards(GmGuard)
+  @Patch('decline/gm')
+  async gmDecline(@Body() gmApproval: GmApproval) {
+    return await this.trainingsService.gmDecline(gmApproval);
   }
 }
