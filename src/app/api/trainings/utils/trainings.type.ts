@@ -28,9 +28,21 @@ export type PdcChairmanApproval = {
   trainingDetails: string;
 };
 
+export type PdcChairmanDecline = {
+  pdcChairman: string;
+  trainingDetails: string;
+  remarks: string;
+};
+
 export type PdcSecretariatApproval = {
   pdcSecretary: string;
   trainingDetails: string;
+};
+
+export type PdcSecretariatDecline = {
+  pdcSecretary: string;
+  trainingDetails: string;
+  remarks: string;
 };
 
 export type TrainingListItem = {
@@ -41,6 +53,12 @@ export type TrainingListItem = {
 export type GmApproval = {
   generalManager: string;
   trainingDetails: string;
+};
+
+export type GmDecline = {
+  generalManager: string;
+  trainingDetails: string;
+  remarks: string;
 };
 
 export type NomineeTrainingStatusType = {

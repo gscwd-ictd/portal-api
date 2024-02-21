@@ -4,9 +4,12 @@ import { lastValueFrom } from 'rxjs';
 import { MicroserviceType } from '../../../utils/types/microservice-type';
 import {
   GmApproval,
+  GmDecline,
   NomineeTrainingStatusType,
   PdcChairmanApproval,
+  PdcChairmanDecline,
   PdcSecretariatApproval,
+  PdcSecretariatDecline,
   TrainingListItem,
   TrainingNomination,
   TrainingNominees,
@@ -94,21 +97,21 @@ export class TrainingsService {
   //
   //for_pdc_secretary_declined , for_pdc_chairman_declined, for_gm_declined
 
-  async pdsSecretariatDecline(pdcSecretariatApproval: PdcSecretariatApproval) {
+  async pdsSecretariatDecline(pdcSecretariatDecline: PdcSecretariatDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_pdc_secretary_decline', pdcSecretariatApproval));
+      const result = await lastValueFrom(this.client.send('for_pdc_secretary_decline', pdcSecretariatDecline));
       console.log(result);
-      if (result.affected > 0) return pdcSecretariatApproval;
+      if (result.affected > 0) return pdcSecretariatDecline;
     } catch (error) {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
     }
   }
 
-  async pdsChairmanDecline(pdcChairmanApproval: PdcChairmanApproval) {
+  async pdsChairmanDecline(pdcChairmanDecline: PdcChairmanDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_pdc_chairman_decline', pdcChairmanApproval));
-      if (result.affected > 0) return pdcChairmanApproval;
+      const result = await lastValueFrom(this.client.send('for_pdc_chairman_decline', pdcChairmanDecline));
+      if (result.affected > 0) return pdcChairmanDecline;
     } catch (error) {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
@@ -133,10 +136,10 @@ export class TrainingsService {
     }
   }
 
-  async gmDecline(gmApproval: GmApproval) {
+  async gmDecline(gmDecline: GmDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_gm_decline', gmApproval));
-      if (result.affected > 0) return gmApproval;
+      const result = await lastValueFrom(this.client.send('for_gm_decline', gmDecline));
+      if (result.affected > 0) return gmDecline;
     } catch (error) {
       Logger.log(error);
       throw new HttpException(error, 500);
