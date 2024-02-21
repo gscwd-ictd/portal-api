@@ -91,6 +91,30 @@ export class TrainingsService {
     }
   }
 
+  //
+  //for_pdc_secretary_declined , for_pdc_chairman_declined, for_gm_declined
+
+  async pdsSecretariatDecline(pdcSecretariatApproval: PdcSecretariatApproval) {
+    try {
+      const result = await lastValueFrom(this.client.send('for_pdc_secretary_decline', pdcSecretariatApproval));
+      console.log(result);
+      if (result.affected > 0) return pdcSecretariatApproval;
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async pdsChairmanDecline(pdcChairmanApproval: PdcChairmanApproval) {
+    try {
+      const result = await lastValueFrom(this.client.send('for_pdc_chairman_decline', pdcChairmanApproval));
+      if (result.affected > 0) return pdcChairmanApproval;
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
   async findAllPdcChairmanApproval() {
     try {
       return await lastValueFrom(this.client.send('find_all_pdc_chairman_approval', {}));
@@ -106,6 +130,16 @@ export class TrainingsService {
     } catch {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async gmDecline(gmApproval: GmApproval) {
+    try {
+      const result = await lastValueFrom(this.client.send('for_gm_decline', gmApproval));
+      if (result.affected > 0) return gmApproval;
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException(error, 500);
     }
   }
 
