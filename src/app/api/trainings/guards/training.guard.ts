@@ -6,7 +6,7 @@ export class PdcChairmanGuard implements CanActivate {
   constructor(private readonly employeeService: EmployeeService) {}
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
-    const id = req.session.user.email._id;
+    const id = req.session.user._id;
 
     const isPdcChairman = await this.employeeService.isPdcChairman(id);
 
@@ -20,7 +20,7 @@ export class PdcSecretaryGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
-    const id = req.session.user.email._id;
+    const id = req.session.user._id;
 
     const isPdcSecretary = await this.employeeService.isPdcSecretariat(id);
 

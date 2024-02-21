@@ -49,7 +49,7 @@ export class TrainingsController {
     return await this.trainingsService.pdcChairmanApproval(pdcChairmanApproval);
   }
 
-  @UseGuards(PdcSecretaryGuard)
+  //@UseGuards(PdcSecretaryGuard)
   @Patch('approval/secretariat')
   async pdcSecretariatApproval(@Body() pdcSecretariatApproval: PdcSecretariatApproval) {
     return await this.trainingsService.pdsSecretariatApproval(pdcSecretariatApproval);
