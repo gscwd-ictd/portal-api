@@ -159,4 +159,12 @@ export class EmployeeService extends CrudHelper<Employee> {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  async isGeneralManager(employeeId: string) {
+    try {
+      return await lastValueFrom(this.client.send('is_general_manager_or_oic', employeeId));
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }
