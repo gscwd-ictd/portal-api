@@ -107,5 +107,6 @@ export class TrainingsController {
   @Patch('decline/gm')
   async gmDecline(@Body() gmDecline: GmDecline) {
     return await this.trainingsService.gmDecline(gmDecline);
+    //
   }
 }
