@@ -198,13 +198,10 @@ export class UserService extends CrudHelper<User> {
     //   'GufCQlY7',
     //   'fRlgF2v7',
     // ];
-    /*const squirts = await this.passwordService.hashPassword('@mikhailanthony2021021');
-    const alexis = await this.passwordService.hashPassword('@alexis2021020');
-    const twinkle = await this.passwordService.hashPassword('@eleaglen2022036');
-    const cara = await this.passwordService.hashPassword('@carajade2021019');*/
-    const rv = await this.passwordService.hashPassword('@ricardovicente2021022');
+    /*const squirts = await this.passwordService.hashPassword('@mikhailanthony2021021');*/
+    const pass = await this.passwordService.hashPassword('@sharon1999001');
     return {
-      rv,
+      pass,
     };
     // const result = await this.dataSource.transaction(async (manager) => {
     //   const userResults = await Promise.all(
