@@ -99,7 +99,7 @@ export class TrainingsService {
 
   async pdsSecretariatDecline(pdcSecretariatDecline: PdcSecretariatDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_pdc_secretary_decline', pdcSecretariatDecline));
+      const result = await lastValueFrom(this.client.send('for_pdc_secretary_declined', pdcSecretariatDecline));
       console.log(result);
       if (result.affected > 0) return pdcSecretariatDecline;
     } catch (error) {
@@ -110,7 +110,7 @@ export class TrainingsService {
 
   async pdsChairmanDecline(pdcChairmanDecline: PdcChairmanDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_pdc_chairman_decline', pdcChairmanDecline));
+      const result = await lastValueFrom(this.client.send('for_pdc_chairman_declined', pdcChairmanDecline));
       if (result.affected > 0) return pdcChairmanDecline;
     } catch (error) {
       Logger.log(error);
@@ -138,7 +138,7 @@ export class TrainingsService {
 
   async gmDecline(gmDecline: GmDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_gm_decline', gmDecline));
+      const result = await lastValueFrom(this.client.send('for_gm_declined', gmDecline));
       if (result.affected > 0) return gmDecline;
     } catch (error) {
       Logger.log(error);
