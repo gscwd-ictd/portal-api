@@ -45,7 +45,7 @@ export class EmployeeService extends CrudHelper<Employee> {
           `SELECT IF(photo_url IS NULL,'',photo_url) photoUrl, email_address emailAddress FROM employees WHERE user_id_fk=?;`,
           [employeeId],
         )
-      )[0];
+      )[0] as { photoUrl: string; emailAddress: string };
     } catch (error) {
       console.log(error);
     }
@@ -84,6 +84,27 @@ export class EmployeeService extends CrudHelper<Employee> {
       console.log(error);
       throw new HttpException('Cannot find employee details from HR', HttpStatus.NOT_FOUND);
     }
+  }
+
+  async getBirthDaysForTheCurrentMonth() {
+    const birthdays = (await this.employeeRepository.query(`
+    SELECT 
+      emp.employee_id employeeId, emp.birth_date birthDate  
+    FROM employees emp 
+    WHERE month(emp.birth_date) = month(now()) 
+    ORDER BY day(emp.birth_date) ASC;
+    `)) as { employeeId: string; birthDate: Date }[];
+
+    const employeeBirthDays = await Promise.all(
+      birthdays.map(async (birthday) => {
+        const { birthDate, employeeId } = birthday;
+        const { photoUrl } = await this.getEmployeeDetails(employeeId);
+        const fullName = await this.getEmployeeFullName(employeeId);
+        return { employeeId, fullName, birthDate, photoUrl };
+      }),
+    );
+
+    return employeeBirthDays;
   }
 
   async createEmployee(employeeDto: CreateEmployeeDto) {
