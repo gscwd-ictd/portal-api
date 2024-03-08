@@ -89,21 +89,20 @@ export class EmployeeService extends CrudHelper<Employee> {
   async getBirthDaysForTheCurrentMonth() {
     const birthdays = (await this.employeeRepository.query(`
     SELECT 
-      emp.employee_id employeeId, emp.birth_date birthDate  
+      emp.user_id_fk id, date_format(emp.birth_date,'%M %d, %Y') birthday  
     FROM employees emp 
     WHERE month(emp.birth_date) = month(now()) 
     ORDER BY day(emp.birth_date) ASC;
-    `)) as { employeeId: string; birthDate: Date }[];
+    `)) as { id: string; birthday: Date }[];
 
     const employeeBirthDays = await Promise.all(
-      birthdays.map(async (birthday) => {
-        const { birthDate, employeeId } = birthday;
-        const { photoUrl } = await this.getEmployeeDetails(employeeId);
-        const fullName = await this.getEmployeeFullName(employeeId);
-        return { employeeId, fullName, birthDate, photoUrl };
+      birthdays.map(async (_birthday) => {
+        const { birthday, id } = _birthday;
+        const { photoUrl } = await this.getEmployeeDetails(id);
+        const name = await this.getEmployeeFullName(id);
+        return { id, name, birthday, picture: photoUrl };
       }),
     );
-
     return employeeBirthDays;
   }
 

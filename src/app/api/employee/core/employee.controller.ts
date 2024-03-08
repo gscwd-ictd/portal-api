@@ -77,7 +77,7 @@ export class EmployeeController {
     return await this.employeeService.getEmail(employeeId);
   }
 
-  @MessagePattern('get_employee_birthdays_for_the_current_month')
+  @MessagePattern({ msg: 'get_employee_birthdays_for_the_current_month' })
   async getBirthDaysForTheCurrentMonth() {
     return await this.employeeService.getBirthDaysForTheCurrentMonth();
   }
