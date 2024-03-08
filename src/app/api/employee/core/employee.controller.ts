@@ -63,7 +63,6 @@ export class EmployeeController {
 
   @MessagePattern({ msg: 'get_employee_info_pds' })
   async findEmployeeByIdMS(@Payload() employeeId: string) {
-    console.log('aasd asd 123');
     return await this.employeeService.getEmployeePersonalInfo(employeeId);
   }
 
@@ -77,8 +76,9 @@ export class EmployeeController {
     return await this.employeeService.getEmail(employeeId);
   }
 
-  @MessagePattern('get_employee_birthdays_for_the_current_month')
+  @MessagePattern({ msg: 'get_employee_birthdays_for_the_current_month' })
   async getBirthDaysForTheCurrentMonth() {
+    console.log('asdsadsadASDASDSASACZXVASDADQAWFASGVA');
     return await this.employeeService.getBirthDaysForTheCurrentMonth();
   }
 }
