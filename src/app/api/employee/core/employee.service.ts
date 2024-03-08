@@ -95,23 +95,18 @@ export class EmployeeService extends CrudHelper<Employee> {
     WHERE month(emp.birth_date) = month(now()) 
     ORDER BY day(emp.birth_date) ASC;
     `)) as { id: string; birthday: Date }[];
-      console.log(birthdays);
 
-      const employeeBirthDays = await Promise.all(
-        birthdays.map(async (_birthday) => {
-          const { birthday, id } = _birthday;
-          //console.log(await this.getEmployeeDetailsFromHr(id));
-          const { photoUrl } = await this.getEmployeeDetails(id);
-          const name = await this.getEmployeeFullName(id);
-          return { id, name, birthday, picture: photoUrl };
-        }),
-      );
-      console.log(employeeBirthDays);
-      return employeeBirthDays;
-    } catch (error) {
-      console.log(error);
-    }
+    const employeeBirthDays = await Promise.all(
+      birthdays.map(async (_birthday) => {
+        const { birthday, id } = _birthday;
+        const { photoUrl } = await this.getEmployeeDetails(id);
+        const name = await this.getEmployeeFullName(id);
+        return { id, name, birthday, picture: photoUrl };
+      }),
+    );
+    return employeeBirthDays;
   }
+}
 
   async createEmployee(employeeDto: CreateEmployeeDto) {
     // start database transaction
