@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Employee } from '../data/employee.entity';
 import { ClientsModule } from '@nestjs/microservices';
 import { MicroserviceType } from '../../../../utils/types/microservice-type';
-import { EmployeeDetailsMicroservice } from '../../../../config/microservice.config';
+import { EmployeeDetailsMicroservice, RedisConfigForEmployeeMonitoring } from '../../../../config/microservice.config';
 import { PendingUserModule } from '../../pending-user/core/pending-user.module';
 
 @Module({
@@ -15,8 +15,10 @@ import { PendingUserModule } from '../../pending-user/core/pending-user.module';
     TypeOrmModule.forFeature([Employee]),
 
     // microservice
-    ClientsModule.registerAsync([{ name: MicroserviceType.EMPLOYEE_DETAILS, useClass: EmployeeDetailsMicroservice }]),
-
+    ClientsModule.registerAsync([
+      { name: MicroserviceType.EMPLOYEE_DETAILS, useClass: EmployeeDetailsMicroservice },
+      { name: MicroserviceType.EMPLOYEE_MONITORING, useClass: RedisConfigForEmployeeMonitoring },
+    ]),
     PendingUserModule,
     PersonalInfoModule,
   ],

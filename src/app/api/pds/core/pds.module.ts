@@ -27,6 +27,9 @@ import { EmployeeModule } from '../../employee/core/employee.module';
 import { EligibilityModule } from '../contents/eligibility/core/eligibility.module';
 import { EducationModule } from '../contents/education/core/education.module';
 import { WorkExperienceSheetModule } from '../contents/work-experience-sheet/core/work-experience-sheet.module';
+import { MicroserviceType } from '../../../../utils/types/microservice-type';
+import { EmployeeDetailsMicroservice } from '../../../../config/microservice.config';
+import { ClientsModule } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -56,6 +59,7 @@ import { WorkExperienceSheetModule } from '../contents/work-experience-sheet/cor
     GovernmentIssuedIdModule,
     WorkExperienceModule,
     WorkExperienceSheetModule,
+    ClientsModule.registerAsync([{ name: MicroserviceType.EMPLOYEE_DETAILS, useClass: EmployeeDetailsMicroservice }]),
   ],
   providers: [PdsService],
   controllers: [PdsController],

@@ -7,6 +7,6 @@ export class WorkExperienceSheetAccomplishmentsDTO {
   @IsUUID()
   workExperienceSheetBasicId: WorkExperienceSheetBasic;
 
-  @IsNotEmpty()
+  //@IsNotEmpty()
   accomplishment: string;
 }

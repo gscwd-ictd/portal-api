@@ -1,10 +1,10 @@
 import { WorkExperienceSheetAddDTO } from './../data/work-experience-sheet.dto';
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { WorkExperienceSheetDTO } from '../data/work-experience-sheet.dto';
 import { WorkExperienceSheetService } from './work-experience-sheet.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-@Controller('pds/work-experience-sheet')
+@Controller('pds/work-experience-sheet/')
 export class WorkExperienceSheetController {
   constructor(private readonly workExperienceSheetService: WorkExperienceSheetService) {}
   @Post(':posting_applicant_id')
@@ -24,5 +24,15 @@ export class WorkExperienceSheetController {
       payload.postingApplicantId,
       payload.workExperienceSheetAddDTO,
     );
+  }
+
+  @Get('applicants')
+  async test() {
+    return 'asd';
+  }
+
+  @Get('/applicants/:posting_applicant_id')
+  async getWorkExperienceSheet(@Param('posting_applicant_id') postingApplicantId: string) {
+    return await this.workExperienceSheetService.getWorkExperienceSheet(postingApplicantId);
   }
 }

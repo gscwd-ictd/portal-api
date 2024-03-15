@@ -30,15 +30,21 @@ export class PersonalInfoService extends PdsCrudHelper<PersonalInfo> {
 
   async getPersonalInfo(employeeId: string) {
     try {
+      //console.log('HAHAHAAHAHA===============================', employeeId);
       const mobileNumber = (
-        await this.personalInfoRepository.query(`SELECT mobile_number mobileNumber FROM employees WHERE user_id_fk=?`, [
-          employeeId,
-        ])
+        await this.personalInfoRepository.query(
+          `SELECT DISTINCT mobile_number mobileNumber FROM employees WHERE user_id_fk=?`,
+          [employeeId],
+        )
       )[0].mobileNumber;
+      //console.log(mobileNumber);
       const personalInfo = await this.findPdsByEmployeeId(employeeId);
+      //const personalInfo = { name: 'asd' };
+      console.log('\n', '**** ', employeeId, ' ', personalInfo, ' ', mobileNumber);
       return { mobileNumber, ...personalInfo };
     } catch (error) {
       console.log(error);
+      //return;
     }
   }
 }

@@ -1,11 +1,12 @@
-import { WorkExperienceSheetAccomplishments } from './../contents/accomplishments/data/accomplishments.entity';
-import { WorkExperienceSheetBasic } from './../contents/basic/data/basic.entity';
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, Inject } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { WorkExperienceSheetAccomplishmentsService } from '../contents/accomplishments/core/accomplishments.service';
 import { WorkExperienceSheetBasicService } from '../contents/basic/core/basic.service';
 import { WorkExperienceSheetDutiesService } from '../contents/duties/core/duties.service';
 import { WorkExperienceSheetAddDTO, WorkExperienceSheetDTO } from '../data/work-experience-sheet.dto';
+import { ClientProxy } from '@nestjs/microservices';
+import { MicroserviceType } from '../../../../../../utils/types/microservice-type';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class WorkExperienceSheetService {
@@ -144,5 +145,36 @@ export class WorkExperienceSheetService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getWorkExperienceSheet(postingApplicantId: string) {
+    // const employeeId = await lastValueFrom(
+    //   this.client.send('get_employee_id_by_posting_applicant_id', postingApplicantId),
+    // );
+
+    const basic = await this.basicService.getWorkExperienceSheetBasicByPostingApplicantId(postingApplicantId);
+
+    const result = await Promise.all(
+      basic.map(async (basicItem) => {
+        const { workExperienceId, _id, ...rest } = basicItem;
+        const workExperience = (
+          await this.dataSource.query(
+            `
+           SELECT position_title positionTitle, company_name companyName, monthly_salary monthlySalary, appointment_status appointmentStatus, 
+           is_government_service isGovernmentService, salary_grade salaryGrade, \`from\`, \`to\`, is_wd isWd FROM 
+          pds_work_experience WHERE work_experience_id = ? 
+        `,
+            [workExperienceId],
+          )
+        )[0];
+        console.log(workExperience);
+        const accomplishments = await this.accomplishmentsService.getAccomplishmentsByBasicId(basicItem._id);
+        const duties = await this.dutiesService.getDutiesByBasicId(basicItem._id);
+        return { ...rest, workExperienceId, ...workExperience, accomplishments, duties };
+      }),
+    );
+
+    return result;
+    //console.log('asd ', basic[0].workExperienceId);
   }
 }

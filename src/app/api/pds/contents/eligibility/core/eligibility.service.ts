@@ -20,6 +20,30 @@ export class EligibilityService extends PdsCrudHelper<Eligibility> {
     super(eligibilityRepository);
   }
 
+  async getEligibilityNamesByEmployeeId(employeeId: string) {
+    try {
+      const _eligibilities = await this.eligibilityRepository.query(
+        `
+          SELECT name FROM pds_eligibility
+          WHERE user_id_fk=? ORDER BY exam_date DESC;
+      `,
+        [employeeId],
+      );
+
+      //console.log(_eligibilities);
+
+      const eligibilities = await Promise.all(
+        _eligibilities.map(async (eligibility) => {
+          return { name: eligibility.name };
+        }),
+      );
+
+      return eligibilities;
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
   async getEligibility(employeeId: string) {
     try {
       const _eligibilities = await this.eligibilityRepository.query(

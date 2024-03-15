@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CrudHelper } from '../../../../../../../../utils/helpers/crud';
 import { Repository } from 'typeorm';
@@ -11,5 +11,16 @@ export class WorkExperienceSheetBasicService extends CrudHelper<WorkExperienceSh
     private readonly workExperienceSheetBasicRepository: Repository<WorkExperienceSheetBasic>,
   ) {
     super(workExperienceSheetBasicRepository);
+  }
+
+  async getWorkExperienceSheetBasicByPostingApplicantId(postingApplicantId: string) {
+    try {
+      return await this.workExperienceSheetBasicRepository.find({
+        loadRelationIds: true,
+        where: { postingApplicantId },
+      });
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 }

@@ -1,0 +1,24 @@
+export type TrainingNomination = {
+  id: string;
+  status: TrainingNominationStatus;
+  remarks: string;
+};
+
+export enum TrainingNominationStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+}
+
+export type TrainingNominees = {
+  trainingDistribution: string;
+  employees: {
+    employeeId: string;
+    nomineeType: NomineeType;
+  }[];
+};
+
+export enum NomineeType {
+  STAND_IN = 'stand-in',
+  NOMINEE = 'nominee',
+}

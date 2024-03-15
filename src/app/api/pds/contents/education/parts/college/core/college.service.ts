@@ -18,6 +18,22 @@ export class CollegeService extends PdsCrudHelper<College> {
     );
   }
 
+  async getCollegeInstitutionDegree(employeeId: string) {
+    const colleges = await this.collegeRepository.query(
+      `SELECT school_name institution, \`from\`, degree FROM pds_education_college WHERE user_id_fk =?  ORDER BY \`from\` DESC`,
+      [employeeId],
+    );
+
+    const result = await Promise.all(
+      colleges.map(async (college) => {
+        const { institution, degree } = college;
+        return { institution, degree };
+      }),
+    );
+
+    return result;
+  }
+
   async addCollege(employeeId: string, collegeDTO: AddEducationDTO) {
     try {
       const addCollege = await Promise.all(

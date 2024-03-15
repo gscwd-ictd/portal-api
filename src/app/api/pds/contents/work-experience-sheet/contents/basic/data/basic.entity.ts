@@ -15,7 +15,7 @@ export class WorkExperienceSheetBasic extends DatabaseEntity {
   postingApplicantId: string;
 
   @Column({ name: 'office' })
-  office: string;
+  nameOfOffice: string;
 
   @Column({ name: 'supervisor' })
   supervisor: string;

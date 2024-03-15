@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 {
   "singleQuote": true,
   "trailingComma": "all",
   "printWidth": 120
 }
+=======
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 120
+}
+>>>>>>> d2233ce9709718ecc64ab5ad8a628896562e8d9a

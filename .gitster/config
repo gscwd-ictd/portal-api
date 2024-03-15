@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = https://dev-gscwd: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@github.com/dev-gscwd/portal-backend.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[user]
+	email = gensanwaterdistrict.ictd@gmail.com
+	name = GSCWD-ICTD
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main

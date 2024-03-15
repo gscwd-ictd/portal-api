@@ -60,4 +60,24 @@ export class GraduateService extends PdsCrudHelper<Graduate> {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  async getGraduateInstitutionDegree(employeeId: string) {
+    try {
+      const gradSchools = await this.graduateRepository.query(
+        `SELECT school_name institution,\`from\`, degree FROM pds_education_graduate WHERE user_id_fk =?  ORDER BY \`from\` DESC`,
+        [employeeId],
+      );
+
+      const result = await Promise.all(
+        gradSchools.map(async (gradSchool) => {
+          const { institution, degree } = gradSchool;
+          return { institution, degree };
+        }),
+      );
+
+      return result;
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

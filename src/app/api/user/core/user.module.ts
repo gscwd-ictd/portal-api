@@ -7,6 +7,9 @@ import { User } from '../data/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { PendingUserModule } from '../../pending-user/core/pending-user.module';
 import { EmployeeModule } from '../../employee/core/employee.module';
+import { MicroserviceType } from 'src/utils/types/microservice-type';
+import { ClientsModule } from '@nestjs/microservices';
+import { RedisConfigForEmployeeMonitoring } from 'src/config/microservice.config';
 
 @Module({
   imports: [

@@ -63,11 +63,17 @@ export class EmployeeController {
 
   @MessagePattern({ msg: 'get_employee_info_pds' })
   async findEmployeeByIdMS(@Payload() employeeId: string) {
+    console.log('aasd asd 123');
     return await this.employeeService.getEmployeePersonalInfo(employeeId);
   }
 
   @MessagePattern({ msg: 'get_employee_portal_details' })
   async getEmployeePortalDetails(@Payload() employeeId: string) {
     return await this.employeeService.getEmployeeDetails(employeeId);
+  }
+
+  @MessagePattern({ msg: 'find_email_by_employee_id' })
+  async getEmail(@Payload() employeeId: string) {
+    return await this.employeeService.getEmail(employeeId);
   }
 }

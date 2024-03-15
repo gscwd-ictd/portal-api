@@ -28,7 +28,7 @@ export class OauthService {
     const app = await this.clientAppService.verifyApp({ clientId, secret });
     console.log('App ', app);
     // generate access token
-    const accessToken = await this.tokenService.generateAccessToken(app);
+    const accessToken = await this.tokenService.generateAccessToken(app, user._id);
     console.log('Access Token ', accessToken);
     // return user and access token
     return { ...user, accessToken };

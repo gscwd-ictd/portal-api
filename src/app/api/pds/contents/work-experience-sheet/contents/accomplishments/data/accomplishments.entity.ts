@@ -11,6 +11,6 @@ export class WorkExperienceSheetAccomplishments extends DatabaseEntity {
   @JoinColumn({ name: 'work_experience_sheet_basic_id_fk' })
   workExperienceSheetBasicId: WorkExperienceSheetBasic;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   accomplishment: string;
 }

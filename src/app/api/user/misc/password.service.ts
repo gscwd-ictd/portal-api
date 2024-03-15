@@ -15,10 +15,12 @@ export class PasswordService {
 
   async verifyPassword(hashedPw: string, inputPw: string) {
     // verify if the hashed password from database and password inputted by the user match
+    console.log(inputPw);
     const isMatched = await argon.verify(hashedPw, inputPw);
-
+    console.log(isMatched);
     // throw error if passwords don't match
     if (!isMatched) throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    return isMatched;
   }
 
   public removePassword(user: User): AuthenticatedUser {

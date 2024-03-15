@@ -52,4 +52,21 @@ export class RecognitionService extends PdsCrudHelper<Recognition> {
       throw new HttpException(error.message, error.status);
     }
   }
+
+  async getAwards(employeeId: string) {
+    //
+    //
+    const recognitions = await this.recognitionRepository.query(
+      `SELECT recognition FROM pds_recognition WHERE user_id_fk = ?;`,
+      [employeeId],
+    );
+    let result = [];
+    result = await Promise.all(
+      recognitions.map(async (recognition) => {
+        return { name: recognition.recognition };
+      }),
+    );
+
+    return result;
+  }
 }

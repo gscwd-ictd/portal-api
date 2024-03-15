@@ -1,4 +1,6 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { MicroserviceType } from '../../../../utils/types/microservice-type';
 import { DataSource } from 'typeorm';
 import { EmployeeService } from '../../employee/core/employee.service';
 import { Employee } from '../../employee/data/employee.entity';
@@ -31,6 +33,8 @@ import { SeparatedServiceService } from '../contents/other-information/supportin
 import { VoluntaryWorkService } from '../contents/voluntary-work/core/voluntary-work.service';
 import { WorkExperienceService } from '../contents/work-experience/core/work-experience.service';
 import { PdsDTO } from '../data/pds.dto';
+import { lastValueFrom } from 'rxjs';
+import { WorkExperienceSheetService } from '../contents/work-experience-sheet/core/work-experience-sheet.service';
 
 @Injectable()
 export class PdsService {
@@ -64,6 +68,9 @@ export class PdsService {
     private readonly indigenousPwdSoloParentService: IndigenousPWDSoloParentService,
     private readonly referencesService: ReferencesService,
     private readonly governmentIssuedIdService: GovernmentIssuedIdService,
+    @Inject(MicroserviceType.EMPLOYEE_DETAILS)
+    private readonly client: ClientProxy,
+    private readonly workExperienceSheetService: WorkExperienceSheetService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -119,7 +126,7 @@ export class PdsService {
           }),
         );
 
-        let children = [];
+        const children = [];
         if (pdsDto.children.length > 0) {
           await Promise.all(
             pdsDto.children.map(async (child) => {
@@ -162,7 +169,7 @@ export class PdsService {
           );
         }
 
-        let vocational = [];
+        const vocational = [];
         if (pdsDto.vocational.length > 0) {
           await Promise.all(
             pdsDto.vocational.map(async (vocationalItem) => {
@@ -179,7 +186,7 @@ export class PdsService {
           );
         }
 
-        let college = [];
+        const college = [];
         if (pdsDto.college.length > 0) {
           await Promise.all(
             pdsDto.college.map(async (collegeItem) => {
@@ -196,7 +203,7 @@ export class PdsService {
           );
         }
 
-        let graduate = [];
+        const graduate = [];
         if (pdsDto.graduate.length > 0) {
           await Promise.all(
             pdsDto.graduate.map(async (graduateItem) => {
@@ -213,7 +220,7 @@ export class PdsService {
           );
         }
 
-        let eligibility = [];
+        const eligibility = [];
         if (pdsDto.eligibility.length > 0) {
           await Promise.all(
             pdsDto.eligibility.map(async (eligibilityItem) => {
@@ -236,7 +243,7 @@ export class PdsService {
           );
         }
 
-        let workExperience = [];
+        const workExperience = [];
         if (pdsDto.workExperience.length > 0) {
           await Promise.all(
             pdsDto.workExperience.map(async (workExperienceItem) => {
@@ -253,7 +260,7 @@ export class PdsService {
           );
         }
 
-        let voluntaryWork = [];
+        const voluntaryWork = [];
         if (pdsDto.voluntaryWork.length > 0) {
           await Promise.all(
             pdsDto.voluntaryWork.map(async (voluntaryWorkItem) => {
@@ -270,7 +277,7 @@ export class PdsService {
           );
         }
 
-        let learningDevelopment = [];
+        const learningDevelopment = [];
         if (pdsDto.learningDevelopment.length > 0) {
           await Promise.all(
             pdsDto.learningDevelopment.map(async (learningDevelopmentItem) => {
@@ -287,7 +294,7 @@ export class PdsService {
           );
         }
 
-        let skills = [];
+        const skills = [];
         if (pdsDto.skills.length > 0) {
           await Promise.all(
             pdsDto.skills.map(async (skill) => {
@@ -304,7 +311,7 @@ export class PdsService {
           );
         }
 
-        let organizations = [];
+        const organizations = [];
         if (pdsDto.organizations.length > 0) {
           await Promise.all(
             pdsDto.organizations.map(async (organization) => {
@@ -321,7 +328,7 @@ export class PdsService {
           );
         }
 
-        let recognitions = [];
+        const recognitions = [];
         if (pdsDto.recognitions.length > 0) {
           await Promise.all(
             pdsDto.recognitions.map(async (recognition) => {
@@ -387,7 +394,7 @@ export class PdsService {
           }),
         );
 
-        let references = [];
+        const references = [];
         if (pdsDto.references.length > 0) {
           await Promise.all(
             pdsDto.references.map(async (reference) => {
@@ -712,6 +719,8 @@ export class PdsService {
       const spouse = await this.spouseService.findPdsByEmployeeId(employeeId);
       const parents = await this.parentsService.findPdsByEmployeeId(employeeId);
 
+      console.log('gobyerno id: ', governmentIssuedIds);
+
       const {
         fatherFirstName,
         fatherMiddleName,
@@ -763,7 +772,8 @@ export class PdsService {
       const references = await this.referencesService.findAllPdsEmployeeId(employeeId);
 
       const governmentIssuedId = await this.governmentIssuedIdService.findPdsByEmployeeId(employeeId);
-      console.log(secondary);
+      console.log(personalInfo);
+      //console.log(secondary);
       return {
         personalInfo: { ...applicantInfo, ...personalInfo },
         governmentIssuedIds,
@@ -805,6 +815,58 @@ export class PdsService {
     } catch (error) {
       console.log(error);
       throw new HttpException(error.message, 404);
+    }
+  }
+
+  async getApplicantPdsWithWorkExperience(postingApplicantId: string) {
+    const employeeId = await lastValueFrom(
+      this.client.send('get_employee_id_by_posting_applicant_id', postingApplicantId),
+    );
+    const pds = await this.getPdsV2(employeeId);
+    const workExperienceSheet = await this.workExperienceSheetService.getWorkExperienceSheet(postingApplicantId);
+    return { ...pds, workExperienceSheet };
+  }
+
+  async getLspPdsDetails(employeeId: string) {
+    try {
+      console.log(employeeId);
+      const fullName = await this.employeeService.getEmployeeFullName(employeeId);
+      const lspEmployeeInfo = await this.employeeService.findRecordByUserId(employeeId);
+      const { email, photoUrl, sex } = lspEmployeeInfo;
+      const personalInfo = await this.personalInfoService.getPersonalInfo(employeeId);
+      const { mobileNumber } = personalInfo;
+      const residentialAddress = await this.residentialAddressService.findPdsByEmployeeId(employeeId);
+      const { barangay, city, houseNumber, province, street, zipCode, subdivision } = residentialAddress;
+      const governmentIssuedIds = await this.governmentInfoService.findPdsByEmployeeId(employeeId);
+      const { tinNumber } = governmentIssuedIds;
+      const awards = await this.recognitionService.getAwards(employeeId);
+      const certifications = await this.eligibilityService.getEligibilityNamesByEmployeeId(employeeId);
+      const graduate = await this.graduateService.getGraduateInstitutionDegree(employeeId);
+      const college = await this.collegeService.getCollegeInstitutionDegree(employeeId);
+      const postalAddress =
+        (houseNumber ? houseNumber : '') +
+        (street ? ', ' + street : '') +
+        (subdivision ? ', ' + subdivision : '') +
+        (barangay ? ', ' + barangay : '') +
+        (city ? ', ' + city : '') +
+        (province ? ', ' + province : '') +
+        (zipCode ? ', ' + zipCode : '');
+      const lspBasicDetails = {
+        employeeId,
+        sex,
+        fullName,
+        email,
+        photoUrl,
+        contactNumber: mobileNumber,
+        postalAddress,
+        tin: tinNumber,
+        awards,
+        certifications,
+        education: [...graduate, ...college],
+      };
+      return lspBasicDetails;
+    } catch (error) {
+      console.log(error);
     }
   }
 }

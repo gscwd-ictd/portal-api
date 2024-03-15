@@ -9,11 +9,14 @@ import { VerifiedApp } from '../../../../utils/types/auth-type';
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
-  async generateAccessToken(verifiedApp: VerifiedApp): Promise<string> {
+  async generateAccessToken(verifiedApp: VerifiedApp, verifiedUser: string): Promise<string> {
     // console.log(process.env.PRIVATE_KEY)
     try {
       return await this.jwtService.signAsync(
-        {},
+        {
+          userId: verifiedUser,
+          app: verifiedApp.name,
+        },
         {
           // set algorithm to be used in signing this token
           algorithm: 'RS256',
@@ -31,7 +34,7 @@ export class TokenService {
           subject: verifiedApp._id,
 
           // specify the audience of this token
-          audience: verifiedApp.callbackUrl,
+          audience: verifiedUser,
         },
       );
     } catch (error) {

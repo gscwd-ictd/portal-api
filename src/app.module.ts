@@ -12,6 +12,7 @@ import { SmsModule } from './app/api/sms/core/sms.module';
 import { OtpModule } from './app/api/otp/core/otp.module';
 import { join } from 'path';
 import { PdsSupportingDetailsModule } from './app/api/pds/contents/other-information/supporting-details/pds-supporting-details.module';
+import { TrainingsModule } from './app/api/trainings/trainings.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PdsSupportingDetailsModule } from './app/api/pds/contents/other-informa
     PdsSupportingDetailsModule,
     OtpModule,
     Employee201Module,
+    TrainingsModule,
   ],
   controllers: [],
   providers: [],

@@ -12,7 +12,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       autoLoadEntities: true,
       //entities: ['dist/**/*.entity{.ts,.js}', 'src/**/.entity{.ts,.js}'],
       synchronize: true,
-      logging: true,
+      logging: false,
       retryAttempts: 10,
       retryDelay: 3000,
     };
