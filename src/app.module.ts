@@ -15,6 +15,7 @@ import { PdsSupportingDetailsModule } from './app/api/pds/contents/other-informa
 import { TrainingsModule } from './app/api/trainings/trainings.module';
 import { DtrCorrectionsModule } from './app/api/dtr-corrections/dtr-corrections.module';
 import { PassSlipsModule } from './app/api/pass-slips/pass-slips.module';
+import { EventAnnouncementsModule } from './app/api/event-announcements/core/event-announcements.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { PassSlipsModule } from './app/api/pass-slips/pass-slips.module';
     TrainingsModule,
     DtrCorrectionsModule,
     PassSlipsModule,
+    EventAnnouncementsModule,
   ],
   controllers: [],
   providers: [],
