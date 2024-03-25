@@ -12,5 +12,7 @@ export class PassSlipsController {
   @Get('used/count')
   async getUsedPassSlipsCountByEmployeeId(@User() user: AuthenticatedUser) {
     return await this.passSlipsService.getUsedPassSlipsCountByEmployeeId(user._id);
+    //test
+    //test
   }
 }
