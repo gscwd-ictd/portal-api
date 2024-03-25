@@ -76,7 +76,7 @@ export class TrainingsService {
 
   async pdsSecretariatApproval(pdcSecretariatApproval: PdcSecretariatApproval) {
     try {
-      const result = await lastValueFrom(this.client.send('for_pdc_secretary_approval', pdcSecretariatApproval));
+      const result = await lastValueFrom(this.client.send('for_pdc_secretariat_approval', pdcSecretariatApproval));
       console.log(result);
       if (result.affected > 0) return pdcSecretariatApproval;
     } catch (error) {
@@ -87,7 +87,7 @@ export class TrainingsService {
   //find_all_pdc_secretary_approval
   async findAllPdcSecretaryApproval() {
     try {
-      return await lastValueFrom(this.client.send('find_all_pdc_secretary_approval', {}));
+      return await lastValueFrom(this.client.send('find_all_pdc_secretariat_approval', {}));
     } catch {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
@@ -99,7 +99,7 @@ export class TrainingsService {
 
   async pdsSecretariatDecline(pdcSecretariatDecline: PdcSecretariatDecline) {
     try {
-      const result = await lastValueFrom(this.client.send('for_pdc_secretary_declined', pdcSecretariatDecline));
+      const result = await lastValueFrom(this.client.send('for_pdc_secretariat_declined', pdcSecretariatDecline));
       console.log(result);
       if (result.affected > 0) return pdcSecretariatDecline;
     } catch (error) {
