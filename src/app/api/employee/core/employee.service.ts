@@ -87,8 +87,7 @@ export class EmployeeService extends CrudHelper<Employee> {
   }
 
   async getBirthDaysForTheCurrentMonth() {
-    try {
-      const birthdays = (await this.employeeRepository.query(`
+    const birthdays = (await this.employeeRepository.query(`
     SELECT 
       emp.user_id_fk id, date_format(emp.birth_date,'%M %d, %Y') birthday  
     FROM employees emp 
@@ -106,7 +105,6 @@ export class EmployeeService extends CrudHelper<Employee> {
     );
     return employeeBirthDays;
   }
-}
 
   async createEmployee(employeeDto: CreateEmployeeDto) {
     // start database transaction
