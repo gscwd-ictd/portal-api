@@ -13,6 +13,8 @@ import { OtpModule } from './app/api/otp/core/otp.module';
 import { join } from 'path';
 import { PdsSupportingDetailsModule } from './app/api/pds/contents/other-information/supporting-details/pds-supporting-details.module';
 import { TrainingsModule } from './app/api/trainings/trainings.module';
+import { DtrCorrectionsModule } from './app/api/dtr-corrections/dtr-corrections.module';
+import { PassSlipsModule } from './app/api/pass-slips/pass-slips.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { TrainingsModule } from './app/api/trainings/trainings.module';
     OtpModule,
     Employee201Module,
     TrainingsModule,
+    DtrCorrectionsModule,
+    PassSlipsModule,
   ],
   controllers: [],
   providers: [],
