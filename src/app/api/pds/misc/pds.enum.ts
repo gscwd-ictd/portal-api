@@ -38,4 +38,5 @@ export enum AppointmentStatus {
   SELF_EMPLOYED = 'Self-Employed',
   TEMPORARY = 'Temporary',
   CONTRACTUAL = 'Contractual',
+  TEMPORARY_PERMANENT = 'Temporary Permanent',
 }
