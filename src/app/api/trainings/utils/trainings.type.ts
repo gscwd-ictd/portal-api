@@ -1,5 +1,5 @@
 export type TrainingNomination = {
-  id: string;
+  nomineeId: string;
   status: TrainingNominationStatus;
   remarks: string;
 };
@@ -35,7 +35,7 @@ export type PdcChairmanDecline = {
 };
 
 export type PdcSecretariatApproval = {
-  pdcSecretary: string;
+  pdcSecretariat: string;
   trainingDetails: string;
 };
 
@@ -59,9 +59,4 @@ export type GmDecline = {
   generalManager: string;
   trainingDetails: string;
   remarks: string;
-};
-
-export type NomineeTrainingStatusType = {
-  employeeId: string;
-  status: TrainingNominationStatus;
 };
