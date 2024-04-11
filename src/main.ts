@@ -33,6 +33,7 @@ async function bootstrap() {
       'http://172.20.110.45:3006',
       'http://172.20.110.45:3010',
       'http://172.20.10.60:3002',
+      'http://172.20.10.58:3000',
     ],
     credentials: true,
   });
