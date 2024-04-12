@@ -53,6 +53,8 @@ export class StatsNotificationsService {
       user,
     );
 
+    //const emsStats =
+
     const prfsForApprovalCount =
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||

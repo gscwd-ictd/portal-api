@@ -40,14 +40,17 @@ export class EmployeeService extends CrudHelper<Employee> {
 
   async getEmployeeDetails(employeeId: string) {
     try {
-      return (
+      const employeeDetails = (
         await this.employeeRepository.query(
           `SELECT IF(photo_url IS NULL,'',photo_url) photoUrl, email_address emailAddress FROM employees WHERE user_id_fk=?;`,
           [employeeId],
         )
       )[0] as { photoUrl: string; emailAddress: string };
+      console.log(employeeDetails);
+      return employeeDetails;
     } catch (error) {
       console.log(error);
+      return { photoUrl: '', emailAddress: '' };
     }
   }
 
