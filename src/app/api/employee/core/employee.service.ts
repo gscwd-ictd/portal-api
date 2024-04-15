@@ -207,4 +207,12 @@ export class EmployeeService extends CrudHelper<Employee> {
       throw new HttpException(error.message, error.status);
     }
   }
+  //get_appointing_authority_selection_count
+  async getAppointingAuthoritySelectionCount() {
+    try {
+      return await lastValueFrom(this.client.send('get_appointing_authority_selection_count', {}));
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }
