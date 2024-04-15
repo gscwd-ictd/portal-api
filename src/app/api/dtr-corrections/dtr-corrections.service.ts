@@ -14,4 +14,8 @@ export class DtrCorrectionsService {
   async getAllDtrCorrections(user: AuthenticatedUser) {
     return await lastValueFrom(this.clientEms.send('get_all_dtr_corrections', user._id));
   }
+
+  async getPendingDtrCorrections(user: AuthenticatedUser) {
+    return await lastValueFrom(this.clientEms.send('get_pending_dtr_corrections_for_approval', user._id));
+  }
 }

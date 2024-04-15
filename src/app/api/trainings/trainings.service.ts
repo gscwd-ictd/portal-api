@@ -14,6 +14,7 @@ import {
   TrainingNominees,
 } from './utils/trainings.type';
 import { error } from 'console';
+import { AuthenticatedUser } from '../../../utils/types/auth-type';
 
 @Injectable()
 export class TrainingsService {
@@ -158,6 +159,43 @@ export class TrainingsService {
     try {
       return await lastValueFrom(this.client.send('find_all_gm_approval', {}));
     } catch {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async pendingTrainingNominationCount(user: AuthenticatedUser): Promise<{ nominationPending: number }> {
+    try {
+      return await lastValueFrom(this.client.send('count_pending_nomination_by_supervisor_id', user._id));
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async pendingPdcSecretariatApprovalCount(): Promise<{ pendingApproval: number }> {
+    try {
+      return await lastValueFrom(this.client.send('count_pdc_secretariat_approval', {}));
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async pendingPdcChairmanApprovalCount(): Promise<{ pendingApproval: number }> {
+    try {
+      const result = lastValueFrom(this.client.send('count_pdc_chairman_approval', {}));
+      return result;
+    } catch (error) {
+      Logger.log(error);
+      throw new HttpException('An Error has occurred', 500);
+    }
+  }
+
+  async pendingGmApprovalCount(): Promise<{ pendingApproval: number }> {
+    try {
+      return await lastValueFrom(this.client.send('count_gm_approval', {}));
+    } catch (error) {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);
     }

@@ -40,14 +40,17 @@ export class EmployeeService extends CrudHelper<Employee> {
 
   async getEmployeeDetails(employeeId: string) {
     try {
-      return (
+      const employeeDetails = (
         await this.employeeRepository.query(
           `SELECT IF(photo_url IS NULL,'',photo_url) photoUrl, email_address emailAddress FROM employees WHERE user_id_fk=?;`,
           [employeeId],
         )
       )[0] as { photoUrl: string; emailAddress: string };
+      console.log(employeeDetails);
+      return employeeDetails;
     } catch (error) {
       console.log(error);
+      return { photoUrl: '', emailAddress: '' };
     }
   }
 
@@ -183,6 +186,23 @@ export class EmployeeService extends CrudHelper<Employee> {
   async isGeneralManager(employeeId: string) {
     try {
       return await lastValueFrom(this.client.send('is_general_manager_or_oic', employeeId));
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  async getPrfsForApprovalCount(employeeId: string) {
+    try {
+      return await lastValueFrom(this.client.send('get_prf_approvals_count', employeeId));
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  //get_pending_applicant_endorsements_count
+  async getPendingApplicantEndorsementsCount(employeeId: string) {
+    try {
+      return await lastValueFrom(this.client.send('get_pending_applicant_endorsements_count', employeeId));
     } catch (error) {
       throw new HttpException(error.message, error.status);
     }
