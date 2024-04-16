@@ -16,6 +16,8 @@ import { TrainingsModule } from './app/api/trainings/trainings.module';
 import { DtrCorrectionsModule } from './app/api/dtr-corrections/dtr-corrections.module';
 import { PassSlipsModule } from './app/api/pass-slips/pass-slips.module';
 import { EventAnnouncementsModule } from './app/api/event-announcements/core/event-announcements.module';
+import { LeaveApplicationsModule } from './app/api/leave-applications/core/leave-applications.module';
+import { StatsNotificationModules } from './app/api/stats-notification/stats-notifications.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { EventAnnouncementsModule } from './app/api/event-announcements/core/eve
     DtrCorrectionsModule,
     PassSlipsModule,
     EventAnnouncementsModule,
+    LeaveApplicationsModule,
+    StatsNotificationModules,
   ],
   controllers: [],
   providers: [],

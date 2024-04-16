@@ -13,4 +13,10 @@ export class DtrCorrectionsController {
   async getAllDtrCorrections(@User() user: AuthenticatedUser) {
     return await this.dtrCorrectionsService.getAllDtrCorrections(user);
   }
+
+  @UseGuards(AuthenticatedGuard)
+  @Get('pending')
+  async getPendingDtrCorrections(@User() user: AuthenticatedUser) {
+    return await this.dtrCorrectionsService.getPendingDtrCorrections(user);
+  }
 }
