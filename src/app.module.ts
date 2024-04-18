@@ -24,13 +24,11 @@ import { StatsNotificationModules } from './app/api/stats-notification/stats-not
     // config modules
     ConfigModule.forRoot({ isGlobal: true, envFilePath: join(__dirname, '../../.env') }),
     TypeOrmModule.forRootAsync({ useClass: DatabaseConfig }),
-
     // custom modules
     UserModule,
     EmployeeModule,
     ClientAppModule,
     OauthModule,
-
     // microservice modules
     SmsModule,
     PdsModule,
