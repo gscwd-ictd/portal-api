@@ -66,23 +66,16 @@ export class EmployeeService extends CrudHelper<Employee> {
   async getEmployeeDetailsFromHr(hrEmployeeId: string) {
     try {
       const employeeDetails = await lastValueFrom(this.client.send(GET_EMPLOYEE_DETAILS, hrEmployeeId));
+      const officerOfTheDay = await lastValueFrom(this.clientEms.send('get_officer_of_the_day_orgs', hrEmployeeId));
       console.log(employeeDetails);
-      //console.log(hrEmployeeId);
-      //console.log('employee details: ', employeeDetails);
-      // const { sex } = await this.employeeRepository.findOne({
-      //   select: { sex: true, userId: true },
-      //   where: { userId: hrEmployeeId },
-      //   loadRelationIds: true,
-      //   relations: { userId: true },
-      //   loadEagerRelations: true,
-      // });
+
       const overtimeImmediateSupervisorId = await lastValueFrom(
         this.clientEms.send('get_overtime_immediate_supervisor', hrEmployeeId),
       );
       const sex = (
         await this.employeeRepository.query(`SELECT sex FROM employees WHERE user_id_fk = ?`, [hrEmployeeId])
       )[0].sex;
-      return { ...employeeDetails, overtimeImmediateSupervisorId, sex };
+      return { ...employeeDetails, officerOfTheDay, overtimeImmediateSupervisorId, sex };
     } catch (error) {
       console.log(error);
       throw new HttpException('Cannot find employee details from HR', HttpStatus.NOT_FOUND);
