@@ -17,7 +17,7 @@ import { TrainingsModule } from '../trainings/trainings.module';
     DtrCorrectionsModule,
     LeaveApplicationsModule,
     OvertimeApplicationModule,
-    TrainingsModule,
+    //TrainingsModule,
     EmployeeModule,
     ClientsModule.registerAsync([
       { name: MicroserviceType.EMPLOYEE_DETAILS, useClass: EmployeeDetailsMicroservice },

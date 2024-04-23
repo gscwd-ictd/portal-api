@@ -18,7 +18,7 @@ export class StatsNotificationsService {
     private readonly dtrCorrectionsService: DtrCorrectionsService,
     private readonly overtimeApplicationsService: OvertimeApplicationService,
     private readonly employeeService: EmployeeService,
-    private readonly trainingsService: TrainingsService,
+    //private readonly trainingsService: TrainingsService,
   ) {}
 
   async getForApprovalNotifications(user: AuthenticatedUser) {
@@ -26,6 +26,8 @@ export class StatsNotificationsService {
 
     console.log(employeeDetails);
     const positionTitle = employeeDetails.assignment.positionTitle;
+
+    /*
     const pendingTrainingNominationCount =
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
@@ -35,22 +37,23 @@ export class StatsNotificationsService {
       positionTitle === 'OIC-Department Manager' ||
       positionTitle === 'OIC-Assistant General Manager' ||
       positionTitle === 'OIC-General Manager'
-        ? (await this.trainingsService.pendingTrainingNominationCount(user)).nominationPending
+        -- ? (await this.trainingsService.pendingTrainingNominationCount(user)).nominationPending
         : null;
     const pendingPdcSecretariatApprovalCount = employeeDetails.isPdcSecretariat
-      ? (await this.trainingsService.pendingPdcSecretariatApprovalCount()).pendingApproval
+      -- ? (await this.trainingsService.pendingPdcSecretariatApprovalCount()).pendingApproval
       : null;
 
     const pendingPdcChairmanApprovalCount = employeeDetails.isPdcChairman
-      ? (await this.trainingsService.pendingPdcChairmanApprovalCount()).pendingApproval
+     --  ? (await this.trainingsService.pendingPdcChairmanApprovalCount()).pendingApproval
       : null;
 
     const pendingGmApprovalCount =
       employeeDetails.assignment.positionTitle === 'General Manager A' ||
       employeeDetails.assignment.positionTitle === 'OIC-General Manager'
-        ? (await this.trainingsService.pendingGmApprovalCount()).pendingApproval
+      --   ? (await this.trainingsService.pendingGmApprovalCount()).pendingApproval
         : null;
-
+    */
+   
     const pendingDtrCorrectionsApprovals = await this.dtrCorrectionsService.getPendingDtrCorrections(user);
     const forHrdmApprovalLeaves = await this.leaveApplicationsService.getForHrdmApprovalCount(user);
     const pendingOvertimeApprovals = await this.overtimeApplicationsService.getPendingOvertimeApplicationApprovalCount(
@@ -95,13 +98,13 @@ export class StatsNotificationsService {
         ? await this.employeeService.getAppointingAuthoritySelectionCount()
         : null;
     return {
-      pendingTrainingNominationCount,
+     // pendingTrainingNominationCount,
       pendingDtrCorrectionsApprovals,
       forHrdmApprovalLeaves,
       pendingOvertimeApprovals,
-      pendingPdcSecretariatApprovalCount,
-      pendingPdcChairmanApprovalCount,
-      pendingGmApprovalCount,
+      //pendingPdcSecretariatApprovalCount,
+      //pendingPdcChairmanApprovalCount,
+      //pendingGmApprovalCount,
       prfsForApprovalCount,
       pendingApplicantEndorsementsCount,
       ...allPendingForManagersEms,

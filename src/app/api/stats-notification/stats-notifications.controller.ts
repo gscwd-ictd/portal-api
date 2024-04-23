@@ -11,6 +11,6 @@ export class StatsNotificationsController {
   @UseGuards(AuthenticatedGuard)
   @Get()
   async getForApprovalNotifications(@User() user: AuthenticatedUser) {
-    return await this.statsNotificationService.getForApprovalNotifications(user);
+    //return await this.statsNotificationService.getForApprovalNotifications(user);
   }
 }
