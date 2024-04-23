@@ -118,7 +118,7 @@ export class StatsNotificationsService {
       pendingLeavesCount: string;
       pendingOvertimesCount: string;
     };
-
+    //return notifs from ems
     return {
       pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
       pendingLeavesCount: parseInt(result.pendingLeavesCount),
