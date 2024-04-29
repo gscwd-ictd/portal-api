@@ -8,7 +8,6 @@ const RedisStore = connectRedis(session);
 const redisClient = new Redis({
   // ! change this port
   port: 6379,
-
   // ! change this host
   host: 'localhost',
 });
