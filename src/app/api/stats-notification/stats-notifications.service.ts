@@ -26,6 +26,9 @@ export class StatsNotificationsService {
 
     console.log(employeeDetails);
     const positionTitle = employeeDetails.assignment.positionTitle;
+
+    console.log('le position', positionTitle);
+
     const pendingTrainingNominationCount =
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
@@ -58,11 +61,9 @@ export class StatsNotificationsService {
     );
 
     const prfsForApprovalCount =
-      positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
       positionTitle === 'General Manager A' ||
-      positionTitle === 'OIC-Division Manager' ||
       positionTitle === 'OIC-Department Manager' ||
       positionTitle === 'OIC-Assistant General Manager' ||
       positionTitle === 'OIC-General Manager'
@@ -115,7 +116,7 @@ export class StatsNotificationsService {
       pendingLeavesCount: string;
       pendingOvertimesCount: string;
     };
-    //return notifs from ems
+
     return {
       pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
       pendingLeavesCount: parseInt(result.pendingLeavesCount),
