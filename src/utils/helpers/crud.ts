@@ -9,8 +9,10 @@ export class CrudHelper<T> {
   }
   async createRecord(createDto: any): Promise<T> {
     try {
+      console.log(createDto);
       return await this.repository.save(createDto);
     } catch (error) {
+      console.log(error);
       throw new HttpException('Failed to create record', HttpStatus.BAD_REQUEST);
     }
   }
