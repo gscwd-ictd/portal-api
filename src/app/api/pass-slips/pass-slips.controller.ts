@@ -13,4 +13,11 @@ export class PassSlipsController {
   async getUsedPassSlipsCountByEmployeeId(@User() user: AuthenticatedUser) {
     return await this.passSlipsService.getUsedPassSlipsCountByEmployeeId(user._id);
   }
+
+  //get_assignable_supervisors_for_pass_slip
+  @UseGuards(AuthenticatedGuard)
+  @Get('dropdown')
+  async getAssignableSupervisorsForPassSlip(@User() user: AuthenticatedUser) {
+    return await this.passSlipsService.getAssignableSupervisorsForPassSlip(user._id);
+  }
 }
