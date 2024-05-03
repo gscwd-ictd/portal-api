@@ -11,7 +11,7 @@ export class WorkExperienceSheetBasicDTO {
   postingApplicantId: string;
 
   @IsNotEmpty()
-  nameOfOffice: string;
+  office: string;
 
   @IsNotEmpty()
   supervisor: string;
