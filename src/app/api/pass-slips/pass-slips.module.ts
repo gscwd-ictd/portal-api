@@ -4,6 +4,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { EmployeeDetailsMicroservice, RedisConfigForEmployeeMonitoring } from '../../../config/microservice.config';
 import { MicroserviceType } from '../../../utils/types/microservice-type';
 import { PassSlipsController } from './pass-slips.controller';
+import { EmployeeModule } from '../employee/core/employee.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PassSlipsController } from './pass-slips.controller';
       { name: MicroserviceType.EMPLOYEE_DETAILS, useClass: EmployeeDetailsMicroservice },
       { name: MicroserviceType.EMPLOYEE_MONITORING, useClass: RedisConfigForEmployeeMonitoring },
     ]),
+    EmployeeModule,
   ],
   controllers: [PassSlipsController],
   providers: [PassSlipsService],
