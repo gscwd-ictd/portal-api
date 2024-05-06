@@ -46,4 +46,5 @@ export enum Roles {
   DEPARTMENT_MANAGER = 'department_manager',
   DIVISION_MANAGER = 'division_manager',
   RANK_AND_FILE = 'rank_and_file',
+  
 }

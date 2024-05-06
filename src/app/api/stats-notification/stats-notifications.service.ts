@@ -18,7 +18,7 @@ export class StatsNotificationsService {
     private readonly dtrCorrectionsService: DtrCorrectionsService,
     private readonly overtimeApplicationsService: OvertimeApplicationService,
     private readonly employeeService: EmployeeService,
-    //private readonly trainingsService: TrainingsService,
+    private readonly trainingsService: TrainingsService,
   ) {}
 
   async getForApprovalNotifications(user: AuthenticatedUser) {
@@ -26,9 +26,10 @@ export class StatsNotificationsService {
 
     console.log(employeeDetails);
     const positionTitle = employeeDetails.assignment.positionTitle;
-
-    /*
-    const pendingTrainingNominationCount =
+    
+    console.log('le position',positionTitle);
+  
+ const pendingTrainingNominationCount =
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
@@ -37,22 +38,22 @@ export class StatsNotificationsService {
       positionTitle === 'OIC-Department Manager' ||
       positionTitle === 'OIC-Assistant General Manager' ||
       positionTitle === 'OIC-General Manager'
-        -- ? (await this.trainingsService.pendingTrainingNominationCount(user)).nominationPending
+        ? (await this.trainingsService.pendingTrainingNominationCount(user)).nominationPending
         : null;
     const pendingPdcSecretariatApprovalCount = employeeDetails.isPdcSecretariat
-      -- ? (await this.trainingsService.pendingPdcSecretariatApprovalCount()).pendingApproval
-      : null;
+       ? (await this.trainingsService.pendingPdcSecretariatApprovalCount()).pendingApproval
+        : null;
 
     const pendingPdcChairmanApprovalCount = employeeDetails.isPdcChairman
-     --  ? (await this.trainingsService.pendingPdcChairmanApprovalCount()).pendingApproval
+      ? (await this.trainingsService.pendingPdcChairmanApprovalCount()).pendingApproval
       : null;
 
     const pendingGmApprovalCount =
       employeeDetails.assignment.positionTitle === 'General Manager A' ||
       employeeDetails.assignment.positionTitle === 'OIC-General Manager'
-      --   ? (await this.trainingsService.pendingGmApprovalCount()).pendingApproval
+       ? (await this.trainingsService.pendingGmApprovalCount()).pendingApproval
         : null;
-    */
+    
    
     const pendingDtrCorrectionsApprovals = await this.dtrCorrectionsService.getPendingDtrCorrections(user);
     const forHrdmApprovalLeaves = await this.leaveApplicationsService.getForHrdmApprovalCount(user);
@@ -60,12 +61,10 @@ export class StatsNotificationsService {
       user,
     );
 
-    const prfsForApprovalCount =
-      positionTitle === 'Division Manager A' ||
+     const prfsForApprovalCount =
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
       positionTitle === 'General Manager A' ||
-      positionTitle === 'OIC-Division Manager' ||
       positionTitle === 'OIC-Department Manager' ||
       positionTitle === 'OIC-Assistant General Manager' ||
       positionTitle === 'OIC-General Manager'
@@ -98,18 +97,19 @@ export class StatsNotificationsService {
         ? await this.employeeService.getAppointingAuthoritySelectionCount()
         : null;
     return {
-     // pendingTrainingNominationCount,
+      pendingTrainingNominationCount,
       pendingDtrCorrectionsApprovals,
       forHrdmApprovalLeaves,
       pendingOvertimeApprovals,
-      //pendingPdcSecretariatApprovalCount,
-      //pendingPdcChairmanApprovalCount,
-      //pendingGmApprovalCount,
+      pendingPdcSecretariatApprovalCount,
+      pendingPdcChairmanApprovalCount,
+      pendingGmApprovalCount,
       prfsForApprovalCount,
       pendingApplicantEndorsementsCount,
       ...allPendingForManagersEms,
       pendingAppointingAuthoritySelection,
     };
+    
   }
 
   async getAllPendingForManagersEms(employeeId: string) {
@@ -118,7 +118,7 @@ export class StatsNotificationsService {
       pendingLeavesCount: string;
       pendingOvertimesCount: string;
     };
-    //return notifs from ems
+
     return {
       pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
       pendingLeavesCount: parseInt(result.pendingLeavesCount),
