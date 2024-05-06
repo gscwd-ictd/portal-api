@@ -26,10 +26,10 @@ export class StatsNotificationsService {
 
     console.log(employeeDetails);
     const positionTitle = employeeDetails.assignment.positionTitle;
-    
-    console.log('le position',positionTitle);
-  
- const pendingTrainingNominationCount =
+
+    console.log('le position', positionTitle);
+
+    const pendingTrainingNominationCount =
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
@@ -61,7 +61,7 @@ export class StatsNotificationsService {
       user,
     );
 
-     const prfsForApprovalCount =
+    const prfsForApprovalCount =
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
       positionTitle === 'General Manager A' ||
