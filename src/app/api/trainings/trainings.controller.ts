@@ -9,7 +9,6 @@ import {
   PdcSecretariatApproval,
   PdcSecretariatDecline,
   TrainingNomination,
-  TrainingNominationStatus,
   TrainingNominees,
 } from './utils/trainings.type';
 import { GmGuard, PdcChairmanGuard, PdcSecretaryGuard } from './guards/training.guard';
@@ -30,11 +29,8 @@ export class TrainingsController {
   }
 
   @Get('employees/:employee_id')
-  async findAllTrainingByEmployeeId(
-    @Param('employee_id') employeeId: string,
-    @Query('status') status: TrainingNominationStatus,
-  ) {
-    return await this.trainingsService.findAllTrainingByEmployeeId({ employeeId, status });
+  async findAllTrainingByEmployeeId(@Param('employee_id') employeeId: string) {
+    return await this.trainingsService.findAllTrainingByEmployeeId(employeeId);
   }
 
   @Put('')

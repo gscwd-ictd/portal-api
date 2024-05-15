@@ -19,7 +19,7 @@ export class WorkExperienceSheetController {
   async addWorkExperienceSheetMS(
     @Payload() payload: { postingApplicantId: string; workExperienceSheetAddDTO: WorkExperienceSheetAddDTO },
   ) {
-    console.log('Emp Portal MS: ');
+    console.log('Emp Portal MS: ', payload);
     return await this.workExperienceSheetService.addWorkExperienceSheet(
       payload.postingApplicantId,
       payload.workExperienceSheetAddDTO,
