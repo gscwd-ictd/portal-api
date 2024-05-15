@@ -15,7 +15,6 @@ export class LoginGuard implements CanActivate {
     console.log('asd ', user);
     // set userId as session
     request.session.user = user;
-
     // allow the request
     return true;
   }

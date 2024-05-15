@@ -5,7 +5,6 @@ import { MicroserviceType } from '../../../utils/types/microservice-type';
 import {
   GmApproval,
   GmDecline,
-  NomineeTrainingStatusType,
   PdcChairmanApproval,
   PdcChairmanDecline,
   PdcSecretariatApproval,
@@ -43,9 +42,9 @@ export class TrainingsService {
     }
   }
 
-  async findAllTrainingByEmployeeId(nomineeTrainingStatusType: NomineeTrainingStatusType) {
+  async findAllTrainingByEmployeeId(employee_id: string) {
     try {
-      return await lastValueFrom(this.client.send('find_all_training_by_employee_id', nomineeTrainingStatusType));
+      return await lastValueFrom(this.client.send('find_all_training_by_employee_id', employee_id));
     } catch (error) {
       console.log(error);
     }
@@ -78,7 +77,6 @@ export class TrainingsService {
   async pdsSecretariatApproval(pdcSecretariatApproval: PdcSecretariatApproval) {
     try {
       const result = await lastValueFrom(this.client.send('for_pdc_secretariat_approval', pdcSecretariatApproval));
-      console.log(result);
       if (result.affected > 0) return pdcSecretariatApproval;
     } catch (error) {
       Logger.log(error);

@@ -26,7 +26,6 @@ export class PasswordService {
   public removePassword(user: User): AuthenticatedUser {
     // remove password from user
     delete user.password;
-
     // return the user
     return user;
   }

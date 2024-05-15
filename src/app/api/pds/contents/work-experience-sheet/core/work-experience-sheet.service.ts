@@ -19,12 +19,13 @@ export class WorkExperienceSheetService {
 
   async addWorkExperienceSheet(postingApplicantId: string, workExperienceSheetDTO: WorkExperienceSheetAddDTO) {
     try {
-      const { vppId, workExperienceSheet } = workExperienceSheetDTO;
+      console.log('WORK EXPERIENCE SHEET', postingApplicantId, workExperienceSheetDTO);
+      const { workExperienceSheet } = workExperienceSheetDTO;
 
       const workExperienceSheets = await Promise.all(
         workExperienceSheet.map(async (workExperienceSheetItem) => {
           const { basic, duties, accomplishments } = workExperienceSheetItem;
-          //console.log('DTO !!!!', workExperienceSheetItem);
+          console.log('DTO !!!!', workExperienceSheetItem);
           const basicResult = await this.basicService.createRecord({ ...basic, postingApplicantId });
 
           console.log('WORK EXPERIENCE LOG BASIC:   ', basicResult);
@@ -99,7 +100,7 @@ export class WorkExperienceSheetService {
       return workExperienceSheets;
     } catch (error) {
       console.log(error);
-      //throw new HttpException(error.message, error.status);
+      throw new HttpException(error.message, error.status);
     }
   }
 
