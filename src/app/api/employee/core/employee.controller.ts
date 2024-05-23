@@ -78,7 +78,6 @@ export class EmployeeController {
 
   @MessagePattern({ msg: 'get_employee_birthdays_for_the_current_month' })
   async getBirthDaysForTheCurrentMonth() {
-    console.log('asdsadsadASDASDSASACZXVASDADQAWFASGVA');
     return await this.employeeService.getBirthDaysForTheCurrentMonth();
   }
 }
