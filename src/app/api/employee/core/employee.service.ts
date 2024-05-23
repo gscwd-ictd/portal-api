@@ -65,7 +65,9 @@ export class EmployeeService extends CrudHelper<Employee> {
 
   async getEmployeeDetailsFromHr(hrEmployeeId: string) {
     try {
-      const employeeDetails = await lastValueFrom(this.client.send(GET_EMPLOYEE_DETAILS, hrEmployeeId));
+      const employeeDetails = await lastValueFrom(
+        this.client.send('get_employee_details_with_signature', hrEmployeeId),
+      );
       const officerOfTheDay = await lastValueFrom(this.clientEms.send('get_officer_of_the_day_orgs', hrEmployeeId));
       console.log(employeeDetails);
       const overtimeImmediateSupervisorId = await lastValueFrom(
@@ -79,6 +81,12 @@ export class EmployeeService extends CrudHelper<Employee> {
       console.log(error);
       throw new HttpException('Cannot find employee details from HR', HttpStatus.NOT_FOUND);
     }
+  }
+
+  async getEmployeePosition(employeeId: string) {
+    //get_employee_position_by_id
+    const employeePosition = await lastValueFrom(this.client.send('get_employee_position_by_id', employeeId));
+    return employeePosition;
   }
 
   async getBirthDaysForTheCurrentMonth() {
@@ -95,10 +103,14 @@ export class EmployeeService extends CrudHelper<Employee> {
         const { birthday, id } = _birthday;
         const { photoUrl } = await this.getEmployeeDetails(id);
         const name = await this.getEmployeeFullName(id);
-        return { id, name, birthday, picture: photoUrl };
+        const employeePosition = await this.getEmployeePosition(id);
+
+        if (employeePosition !== null) {
+          return { id, name, birthday, picture: photoUrl };
+        }
       }),
     );
-    return employeeBirthDays;
+    return employeeBirthDays.filter((n) => n);
   }
 
   async createEmployee(employeeDto: CreateEmployeeDto) {
