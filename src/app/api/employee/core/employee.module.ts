@@ -8,11 +8,12 @@ import { ClientsModule } from '@nestjs/microservices';
 import { MicroserviceType } from '../../../../utils/types/microservice-type';
 import { EmployeeDetailsMicroservice, RedisConfigForEmployeeMonitoring } from '../../../../config/microservice.config';
 import { PendingUserModule } from '../../pending-user/core/pending-user.module';
+import { AgeBracketView } from '../data/employee-age.view';
 
 @Module({
   imports: [
     // typeorm module
-    TypeOrmModule.forFeature([Employee]),
+    TypeOrmModule.forFeature([Employee, AgeBracketView]),
 
     // microservice
     ClientsModule.registerAsync([

@@ -80,4 +80,14 @@ export class EmployeeController {
   async getBirthDaysForTheCurrentMonth() {
     return await this.employeeService.getBirthDaysForTheCurrentMonth();
   }
+
+  @MessagePattern({ msg: 'count_personnel_by_age_bracket' })
+  async countPersonnelByAgeBracket() {
+    return await this.employeeService.countPersonnelByAgeBracket();
+  }
+
+  @MessagePattern({ msg: 'find_employee_gender_by_employee_id' })
+  async findAllEmployeeGender(@Payload() employeeId: string) {
+    return await this.employeeService.findAllEmployeeGender(employeeId);
+  }
 }
