@@ -1,21 +1,23 @@
 import { PersonalInfoService } from './../../pds/contents/basic-info/personal-info/core/personal-info.service';
-import { HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CrudHelper } from '../../../../utils/helpers/crud';
 import { DataSource, Repository } from 'typeorm';
 import { Employee } from '../data/employee.entity';
 import { MicroserviceType } from '../../../../utils/types/microservice-type';
 import { ClientProxy } from '@nestjs/microservices';
-import { last, lastValueFrom } from 'rxjs';
-import { GET_EMPLOYEE_DETAILS } from '../../../../utils/constants/microservice-patterns';
+import { lastValueFrom } from 'rxjs';
 import { CreateEmployeeDto } from '../data/employee.dto';
 import { PendingUser } from '../../pending-user/data/pending-user.entity';
+import { AgeBracketView } from '../data/employee-age.view';
 
 @Injectable()
 export class EmployeeService extends CrudHelper<Employee> {
   constructor(
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
+    @InjectRepository(AgeBracketView)
+    private readonly ageBracketService: Repository<AgeBracketView>,
     private readonly personalInfoService: PersonalInfoService,
 
     @Inject(MicroserviceType.EMPLOYEE_DETAILS)
@@ -217,6 +219,55 @@ export class EmployeeService extends CrudHelper<Employee> {
     try {
       return await lastValueFrom(this.client.send('get_appointing_authority_selection_count', {}));
     } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  async countPersonnelByAgeBracket() {
+    try {
+      const label = [];
+      const maleData = [];
+      const femaleData = [];
+
+      const ageBracket = await this.ageBracketService.find();
+
+      await Promise.all(
+        ageBracket.map(async (items) => {
+          label.push(items.ageBracket);
+          maleData.push(items.maleCount);
+          femaleData.push(items.femaleCount);
+        }),
+      );
+
+      return {
+        label: label,
+        datasets: [
+          {
+            label: 'Male',
+            data: maleData,
+          },
+          {
+            label: 'Female',
+            data: femaleData,
+          },
+        ],
+      };
+    } catch (error) {
+      Logger.error(error);
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  async findAllEmployeeGender(employeeId: string) {
+    try {
+      return await this.employeeRepository
+        .createQueryBuilder()
+        .select('user_id_fk', 'employeeId')
+        .addSelect('sex')
+        .where('user_id_fk = :employeeId', { employeeId })
+        .getRawOne();
+    } catch (error) {
+      Logger.error(error);
       throw new HttpException(error.message, error.status);
     }
   }
