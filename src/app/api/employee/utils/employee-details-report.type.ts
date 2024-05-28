@@ -1,0 +1,50 @@
+import { BloodType, CivilStatus } from '../../pds/misc/pds.enum';
+import { Sex } from '../data/employee.entity';
+
+export type EmployeeDetailsFilter = {
+  companyId: boolean;
+  employeeId: string;
+  natureOfAppointment: string;
+  personalDetails: boolean;
+  gsis: boolean;
+  pagibig: boolean;
+  sss: boolean;
+  tin: boolean;
+  residentialAddress: boolean;
+  permanentAddress: boolean;
+  primaryEducation: boolean;
+  secondaryEducation: boolean;
+  vocationalCourse: boolean;
+  collegeEducation: boolean;
+  graduateStudies: boolean;
+  eligibility: boolean;
+};
+
+export type EmployeeDetailsReport = {
+  fullName: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  nameExt: string;
+  birthPlace: string;
+  sex: Sex;
+  birthDate: Date;
+  email: string;
+  gsis: string;
+  pagibig: string;
+  sss: string;
+  tin: string;
+  height: number;
+  weight: number;
+  bloodType: BloodType;
+  civilStatus: CivilStatus;
+  permanentAddress: string;
+  residentialAddress: string;
+  primaryEducation: string;
+  secondaryEducation: string;
+  vocationalCourse: string;
+  collegeEducation: string;
+  graduateStudies: string;
+  eligibility: string;
+  natureOfAppointment: string;
+};
