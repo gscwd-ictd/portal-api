@@ -19,6 +19,15 @@ export abstract class PdsCrudHelper<T> extends CrudHelper<T> {
     }
   }
 
+  async findPdsByEmployeeIdOrNull(employeeId: string): Promise<T> {
+    try {
+      return await this.pdsRepository.createQueryBuilder().select().where({ employeeId }).getOneOrFail();
+    } catch (error) {
+      //throw new HttpException({ message: 'No PDS record found', details: error }, HttpStatus.NOT_FOUND);
+      return null;
+    }
+  }
+
   async updatePdsByEmployeeId(employeeId: string, pdsDto: any): Promise<UpdateResult> {
     try {
       return await this.pdsRepository.createQueryBuilder().update().set(pdsDto).where({ employeeId }).execute();
