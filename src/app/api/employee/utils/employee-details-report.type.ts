@@ -10,6 +10,7 @@ export type EmployeeDetailsFilter = {
   pagibig: boolean;
   sss: boolean;
   tin: boolean;
+  philhealth: boolean;
   residentialAddress: boolean;
   permanentAddress: boolean;
   primaryEducation: boolean;
@@ -34,6 +35,7 @@ export type EmployeeDetailsReport = {
   pagibig: string;
   sss: string;
   tin: string;
+  philhealth: string;
   height: number;
   weight: number;
   bloodType: BloodType;

@@ -10,7 +10,6 @@ import { lastValueFrom } from 'rxjs';
 import { CreateEmployeeDto } from '../data/employee.dto';
 import { PendingUser } from '../../pending-user/data/pending-user.entity';
 import { AgeBracketView } from '../data/employee-age.view';
-import { promises } from 'dns';
 import { EmployeeDetailsFilter, EmployeeDetailsReport } from '../utils/employee-details-report.type';
 
 @Injectable()
@@ -227,7 +226,7 @@ export class EmployeeService extends CrudHelper<Employee> {
 
   async countPersonnelByAgeBracket() {
     try {
-      const label = [];
+      const labels = [];
       const maleData = [];
       const femaleData = [];
 
@@ -235,14 +234,14 @@ export class EmployeeService extends CrudHelper<Employee> {
 
       await Promise.all(
         ageBracket.map(async (items) => {
-          label.push(items.ageBracket);
+          labels.push(items.ageBracket);
           maleData.push(items.maleCount);
           femaleData.push(items.femaleCount);
         }),
       );
 
       return {
-        label: label,
+        labels: labels,
         datasets: [
           {
             label: 'Male',
@@ -296,7 +295,8 @@ export class EmployeeService extends CrudHelper<Employee> {
               email,
               gsis_number gsis, 
               pagibig_number pagibig, 
-              sss_number sss, 
+              sss_number sss,
+              philhealth_number philhealth, 
               tin_number tin, 
               height, 
               weight, 
@@ -364,12 +364,14 @@ export class EmployeeService extends CrudHelper<Employee> {
       secondaryEducation,
       vocationalCourse,
       personalDetails,
+      philhealth,
     } = employeeDetailsFilter;
 
     if (!gsis) delete returnedDetails['gsis'];
     if (!pagibig) delete returnedDetails['pagibig'];
     if (!sss) delete returnedDetails['sss'];
     if (!tin) delete returnedDetails['tin'];
+    if (!philhealth) delete returnedDetails['philhealth'];
     if (!companyId) delete returnedDetails['companyId'];
     if (!collegeEducation) delete returnedDetails['collegeEducation'];
     if (!primaryEducation) delete returnedDetails['primaryEducation'];
