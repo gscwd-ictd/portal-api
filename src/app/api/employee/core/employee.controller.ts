@@ -6,6 +6,7 @@ import { EmployeeService } from './employee.service';
 import { User } from '../../../../global/decorators/user.decorator';
 import { AuthenticatedUser } from '../../../../utils/types/auth-type';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EmployeeDetailsFilter } from '../utils/employee-details-report.type';
 
 @Controller('employees')
 export class EmployeeController {
@@ -79,5 +80,23 @@ export class EmployeeController {
   @MessagePattern({ msg: 'get_employee_birthdays_for_the_current_month' })
   async getBirthDaysForTheCurrentMonth() {
     return await this.employeeService.getBirthDaysForTheCurrentMonth();
+  }
+
+  @MessagePattern({ msg: 'count_personnel_by_age_bracket' })
+  async countPersonnelByAgeBracket() {
+    return await this.employeeService.countPersonnelByAgeBracket();
+  }
+
+  @MessagePattern({ msg: 'find_employee_gender_by_employee_id' })
+  async findAllEmployeeGender(@Payload() employeeId: string) {
+    return await this.employeeService.findAllEmployeeGender(employeeId);
+  }
+
+  @MessagePattern({ msg: 'generate_report_on_employee_details' })
+  async generateReportOnEmployeeDetails(
+    @Payload()
+    employeeDetailsFilter: EmployeeDetailsFilter,
+  ) {
+    return await this.employeeService.generateReportOnEmployeeDetails(employeeDetailsFilter);
   }
 }
