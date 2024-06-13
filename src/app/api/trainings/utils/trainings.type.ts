@@ -16,6 +16,7 @@ export type TrainingNominees = {
     employeeId: string;
     nomineeType: NomineeType;
   }[];
+  remarks?: string;
 };
 
 export enum NomineeType {
@@ -46,7 +47,8 @@ export type PdcSecretariatDecline = {
 };
 
 export type TrainingListItem = {
-  distributionId: string;
+  trainingId: string;
+  supervisorId: string;
   nomineeType?: NomineeType;
 };
 

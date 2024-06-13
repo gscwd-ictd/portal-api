@@ -128,7 +128,7 @@ export class TrainingsService {
   //List of nominees
   async listOfNomineesByDistributionId(trainingListItem: TrainingListItem) {
     try {
-      return await lastValueFrom(this.client.send('find_training_nominees_by_distribution_id', trainingListItem));
+      return await lastValueFrom(this.client.send('find_training_nominees_by_supervisor_id', trainingListItem));
     } catch {
       Logger.log(error);
       throw new HttpException('An Error has occurred', 500);

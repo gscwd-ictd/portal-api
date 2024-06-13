@@ -164,7 +164,7 @@ export class WorkExperienceSheetService {
             `
            SELECT position_title positionTitle, company_name companyName, monthly_salary monthlySalary, appointment_status appointmentStatus, 
            is_government_service isGovernmentService, salary_grade salaryGrade, \`from\`, \`to\`, is_wd isWd FROM 
-          pds_work_experience WHERE work_experience_id = ? 
+          pds_work_experience WHERE work_experience_id = ? ORDER BY \`from\` DESC
         `,
             [workExperienceId],
           )
