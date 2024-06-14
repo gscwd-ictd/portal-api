@@ -79,11 +79,16 @@ export class TrainingsController {
     return await this.trainingsService.findAllPdcSecretaryApproval();
   }
 
-  @Get('/nominees/:distribution_id/')
-  async getNominees(@Param('distribution_id') distributionId: string, @Query('nominee_type') nomineeType: NomineeType) {
+  @Get(':training_id/nominees/:supevisor_id/')
+  async getNominees(
+    @Param('training_id') trainingId: string,
+    @Param('supevisor_id') supervisorId: string,
+    @Query('nominee_type') nomineeType: NomineeType,
+  ) {
     return await this.trainingsService.listOfNomineesByDistributionId({
+      trainingId,
+      supervisorId,
       nomineeType,
-      distributionId,
     });
   }
 

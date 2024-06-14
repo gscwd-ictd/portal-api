@@ -19,6 +19,14 @@ export type EmployeeDetailsFilter = {
   collegeEducation: boolean;
   graduateStudies: boolean;
   eligibility: boolean;
+  dateHired: boolean;
+  assignment: boolean;
+  positionTitle: boolean;
+  office: boolean;
+  department: boolean;
+  division: boolean;
+  salaryGrade: boolean;
+  stepIncrement: boolean;
 };
 
 export type EmployeeDetailsReport = {
@@ -49,4 +57,11 @@ export type EmployeeDetailsReport = {
   graduateStudies: string;
   eligibility: string;
   natureOfAppointment: string;
+  dateHired: Date;
+  assignment: string;
+  office: string;
+  department: string;
+  division: string;
+  salaryGrade: string;
+  stepIncrement: string;
 };
