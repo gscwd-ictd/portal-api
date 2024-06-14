@@ -281,9 +281,23 @@ export class EmployeeService extends CrudHelper<Employee> {
       }),
     );
 
+    //console.log('EMPOY: ');
+
     const personalDetails = await Promise.all(
       employees.map(async (employee) => {
-        const { personalDetails } = employee;
+        const { personalDetails, employmentDetails } = employee;
+        const positionTitle = employmentDetails.positionTitle;
+        const assignment = {
+          assignment: employmentDetails.assignment.name,
+          division: employmentDetails.assignment.divisionName,
+          department: employmentDetails.assignment.departmentName,
+          office: employmentDetails.assignment.officeName,
+        };
+
+        const salaryGradeDetails = await this.getEmployeeDetailsFromHr(employmentDetails.employeeId);
+
+        const salaryGrade = salaryGradeDetails.salaryGradeLevel;
+        const stepIncrement = salaryGradeDetails.salaryGradeStepIncrement;
 
         const portalPersonalDetails = await this.employeeRepository.query(
           `SELECT company_id companyId,sex, DATE_FORMAT(birth_date,'%M %d, %Y') birthDate FROM employees WHERE user_id_fk=?`,
@@ -310,7 +324,8 @@ export class EmployeeService extends CrudHelper<Employee> {
               get_vocational(u.user_id) vocationalCourse,
               get_college(u.user_id) collegeEducation,
               get_graduate(u.user_id) graduateStudies,
-              get_eligibility(u.user_id) eligibility
+              get_eligibility(u.user_id) eligibility,
+              get_date_hired_from_pds(u.user_id) dateHired
                 FROM users u 
             LEFT JOIN pds_basic_government_info pdsbgi ON pdsbgi.user_id_fk = u.user_id 
             LEFT JOIN pds_basic_personal_info pbpi ON pbpi.user_id_fk = u.user_id 
@@ -325,16 +340,24 @@ export class EmployeeService extends CrudHelper<Employee> {
           portalPersonalDetails.length > 0
             ? {
                 ...personalDetails,
+                ...assignment,
+                positionTitle,
                 natureOfAppointment: employee.employmentDetails.natureOfAppointment,
                 ...portalPersonalDetails[0],
                 ...pdsBasicInfo[0],
+                salaryGrade,
+                stepIncrement,
               }
             : {
                 ...personalDetails,
+                ...assignment,
+                positionTitle,
                 natureOfAppointment: employee.employmentDetails.natureOfAppointment,
                 sex: null,
                 birthdate: null,
                 ...pdsBasicInfo[0],
+                salaryGrade,
+                stepIncrement,
               };
 
         return await this.personalDetailsFilterColumns(employeeDetailsFilter, result);
@@ -365,6 +388,14 @@ export class EmployeeService extends CrudHelper<Employee> {
       vocationalCourse,
       personalDetails,
       philhealth,
+      dateHired,
+      assignment,
+      positionTitle,
+      office,
+      department,
+      division,
+      salaryGrade,
+      stepIncrement,
     } = employeeDetailsFilter;
 
     if (!gsis) delete returnedDetails['gsis'];
@@ -382,7 +413,16 @@ export class EmployeeService extends CrudHelper<Employee> {
     if (!residentialAddress) delete returnedDetails['residentialAddress'];
     if (!secondaryEducation) delete returnedDetails['secondaryEducation'];
     if (!vocationalCourse) delete returnedDetails['vocationalCourse'];
+    if (!assignment) delete returnedDetails['assignment'];
+    if (!office) delete returnedDetails['office'];
+    if (!department) delete returnedDetails['department'];
+    if (!division) delete returnedDetails['division'];
+    if (!positionTitle) delete returnedDetails['positionTitle'];
+    if (!dateHired) delete returnedDetails['dateHired'];
+    if (!salaryGrade) delete returnedDetails['salaryGrade'];
+    if (!stepIncrement) delete returnedDetails['stepIncrement'];
     if (!personalDetails) {
+      delete returnedDetails['email'];
       delete returnedDetails['birthPlace'];
       delete returnedDetails['birthDate'];
       delete returnedDetails['sex'];
