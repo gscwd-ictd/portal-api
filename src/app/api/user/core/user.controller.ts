@@ -76,4 +76,14 @@ export class UserController {
   async populateUsers() {
     return await this.userService.populateUsers();
   }
+
+  @Post('mobile-verification')
+  async getMobileNoByUserCreds(@Body() credentials: UserCredentials) {
+    return await this.userService.getMobileNoByUserCreds(credentials);
+  }
+
+  @Post('external-login')
+  async isValidUser(@Body() credentials: UserCredentials) {
+    return await this.userService.isValidUser(credentials);
+  }
 }

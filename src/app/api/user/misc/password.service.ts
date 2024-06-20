@@ -23,6 +23,10 @@ export class PasswordService {
     return isMatched;
   }
 
+  async verifyPasswordBoolean(hashedPw: string, inputPw: string) {
+    return await argon.verify(hashedPw, inputPw);
+  }
+
   public removePassword(user: User): AuthenticatedUser {
     // remove password from user
     delete user.password;

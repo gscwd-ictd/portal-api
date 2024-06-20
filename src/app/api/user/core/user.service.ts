@@ -106,6 +106,18 @@ export class UserService extends CrudHelper<User> {
     return await this.passwordService.verifyPassword(user.password, credentials.password);
   }
 
+  async getMobileNoByUserCreds(credentials: UserCredentials) {
+    const user = await this.findUserByEmail(credentials.email);
+    const isMatched = await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
+    if (isMatched) return (await this.employeeService.findRecordByUserId(user._id)).mobileNumber;
+    throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
+  }
+
+  async isValidUser(credentials: UserCredentials) {
+    const user = await this.findUserByEmail(credentials.email);
+    return await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
+  }
+
   async verifyUser(credentials: UserCredentials): Promise<AuthenticatedUser> {
     // find user via email
     const user = await this.findUserByEmail(credentials.email);
