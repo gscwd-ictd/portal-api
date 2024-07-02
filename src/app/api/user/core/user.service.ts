@@ -22,6 +22,7 @@ import { Employee, Sex } from '../../employee/data/employee.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { MicroserviceType } from 'src/utils/types/microservice-type';
 import { hash } from 'argon2';
+import { EmployeeDetailsFromHr } from '../../employee/utils/employee.type';
 
 @Injectable()
 export class UserService extends CrudHelper<User> {
@@ -108,9 +109,51 @@ export class UserService extends CrudHelper<User> {
 
   async getMobileNoByUserCreds(credentials: UserCredentials) {
     const user = await this.findUserByEmail(credentials.email);
+    const employeeDetails: EmployeeDetailsFromHr = await this.employeeService.getEmployeeDetailsFromHr(user._id);
+
     const isMatched = await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
-    if (isMatched) return (await this.employeeService.findRecordByUserId(user._id)).mobileNumber;
+    if (isMatched) {
+      return {
+        mobileNumber: (await this.employeeService.findRecordByUserId(user._id)).mobileNumber,
+        shouldOtpOnLogin: await this.shouldOtpOnLogin(employeeDetails),
+      };
+    }
     throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
+  }
+
+  private async shouldOtpOnLogin(employeeDetails: EmployeeDetailsFromHr) {
+    const {
+      isPdcChairman,
+      isPdcSecretariat,
+      officerOfTheDay,
+      isHRMPSB,
+      overtimeImmediateSupervisorId,
+      assignment: { positionTitle },
+    } = employeeDetails;
+
+    if (
+      positionTitle === 'Division Manager A' ||
+      positionTitle === 'Department Manager A' ||
+      positionTitle === 'Assistant General Manager' ||
+      positionTitle === 'General Manager A' ||
+      positionTitle === 'OIC-Division Manager' ||
+      positionTitle === 'OIC-Department Manager' ||
+      positionTitle === 'OIC-Assistant General Manager' ||
+      positionTitle === 'OIC-General Manager'
+    ) {
+      return true;
+    } else {
+      if (
+        isPdcChairman ||
+        isPdcSecretariat ||
+        officerOfTheDay.length > 0 ||
+        isHRMPSB ||
+        overtimeImmediateSupervisorId !== null
+      ) {
+        return true;
+      }
+      return false;
+    }
   }
 
   async isValidUser(credentials: UserCredentials) {
