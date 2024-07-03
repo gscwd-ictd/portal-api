@@ -22,6 +22,7 @@ import { Employee, Sex } from '../../employee/data/employee.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { MicroserviceType } from 'src/utils/types/microservice-type';
 import { hash } from 'argon2';
+import { EmployeeDetailsFromHr } from '../../employee/utils/employee.type';
 
 @Injectable()
 export class UserService extends CrudHelper<User> {
@@ -108,9 +109,51 @@ export class UserService extends CrudHelper<User> {
 
   async getMobileNoByUserCreds(credentials: UserCredentials) {
     const user = await this.findUserByEmail(credentials.email);
+    const employeeDetails: EmployeeDetailsFromHr = await this.employeeService.getEmployeeDetailsFromHr(user._id);
+
     const isMatched = await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
-    if (isMatched) return (await this.employeeService.findRecordByUserId(user._id)).mobileNumber;
+    if (isMatched) {
+      return {
+        mobileNumber: (await this.employeeService.findRecordByUserId(user._id)).mobileNumber,
+        shouldOtpOnLogin: await this.shouldOtpOnLogin(employeeDetails),
+      };
+    }
     throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
+  }
+
+  private async shouldOtpOnLogin(employeeDetails: EmployeeDetailsFromHr) {
+    const {
+      isPdcChairman,
+      isPdcSecretariat,
+      officerOfTheDay,
+      isHRMPSB,
+      overtimeImmediateSupervisorId,
+      assignment: { positionTitle },
+    } = employeeDetails;
+
+    if (
+      positionTitle === 'Division Manager A' ||
+      positionTitle === 'Department Manager A' ||
+      positionTitle === 'Assistant General Manager' ||
+      positionTitle === 'General Manager A' ||
+      positionTitle === 'OIC-Division Manager' ||
+      positionTitle === 'OIC-Department Manager' ||
+      positionTitle === 'OIC-Assistant General Manager' ||
+      positionTitle === 'OIC-General Manager'
+    ) {
+      return true;
+    } else {
+      if (
+        isPdcChairman ||
+        isPdcSecretariat ||
+        officerOfTheDay.length > 0 ||
+        isHRMPSB ||
+        overtimeImmediateSupervisorId !== null
+      ) {
+        return true;
+      }
+      return false;
+    }
   }
 
   async isValidUser(credentials: UserCredentials) {
@@ -193,7 +236,7 @@ export class UserService extends CrudHelper<User> {
   }
 
   async populateUsers() {
-    //const employees = await this.employeeService.getEmployeesForPopulation();
+    const employees = await this.employeeService.getEmployeesForPopulation();
     //return employees;
     // const passwords = [
     //   'zVk3xrkh',
@@ -211,52 +254,54 @@ export class UserService extends CrudHelper<User> {
     //   'fRlgF2v7',
     // ];
 
-    const passNolito = await this.passwordService.hashPassword('@nolito2016012');
+    // const passNolito = await this.passwordService.hashPassword('@nolito2016012');
 
-    return {
-      passNolito,
-    };
-    // const result = await this.dataSource.transaction(async (manager) => {
-    //   const userResults = await Promise.all(
-    //     employees.map(async (employee) => {
-    //       //return employee.companyId;
-    //       //const password = passwords[idx];
-    //       const hashedPassword = await this.passwordService.hashPassword(employee.password);
-    //       // return hashedPassword;
-    //       await this.userRepository.query(
-    //         `UPDATE \`users\` SET \`password\` = ?, email= ? WHERE \`users\`.\`user_id\` = ? ;`,
-    //         [hashedPassword, employee.email, employee.employeeId],
-    //       );
-    //       const newUser = await manager
-    //         .createQueryBuilder()
-    //         .insert()
-    //         .into(User)
-    //         .values({ _id: employee.employeeId, email: employee.email, password: hashedPassword })
-    //         .execute();
+    // return {
+    //   passNolito,
+    // };
+    const result = await this.dataSource.transaction(async (manager) => {
+      const userResults = await Promise.all(
+        employees.map(async (employee) => {
+          //return employee.companyId;
+          //const password = passwords[idx];
+          const hashedPassword = await this.passwordService.hashPassword(employee.password);
+          // return hashedPassword;
 
-    //       const newEmployeeDetails = await manager
-    //         .createQueryBuilder()
-    //         .insert()
-    //         .into(Employee)
-    //         .values({
-    //           companyId: employee.companyId,
-    //           firstName: employee.firstName,
-    //           middleName: employee.middleName,
-    //           lastName: employee.lastName,
-    //           nameExtension: employee.nameExt,
-    //           email: employee.email,
-    //           mobileNumber: '',
-    //           sex: Sex.MALE,
-    //           photoUrl: '',
-    //           userId: employee.employeeId,
-    //           birthDate: '2000-01-01',
-    //         })
-    //         .execute();
-    //       return { ...employee, hashedPassword };
-    //     }),
-    //   );
-    //   return userResults;
-    // });
-    // return result;
+          // await this.userRepository.query(
+          //   `UPDATE \`users\` SET \`password\` = ?, email= ? WHERE \`users\`.\`user_id\` = ? ;`,
+          //   [hashedPassword, employee.email, employee.employeeId],
+          // );
+
+          const newUser = await manager
+            .createQueryBuilder()
+            .insert()
+            .into(User)
+            .values({ _id: employee.employeeId, email: employee.email, password: hashedPassword })
+            .execute();
+
+          const newEmployeeDetails = await manager
+            .createQueryBuilder()
+            .insert()
+            .into(Employee)
+            .values({
+              companyId: employee.companyId,
+              firstName: employee.firstName,
+              middleName: employee.middleName,
+              lastName: employee.lastName,
+              nameExtension: employee.nameExt,
+              email: employee.email,
+              mobileNumber: '',
+              sex: Sex.MALE,
+              photoUrl: '',
+              userId: employee.employeeId,
+              birthDate: '2000-01-01',
+            })
+            .execute();
+          return { ...employee, hashedPassword };
+        }),
+      );
+      return userResults;
+    });
+    return result;
   }
 }
