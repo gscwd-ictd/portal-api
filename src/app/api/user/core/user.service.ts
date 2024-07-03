@@ -236,7 +236,7 @@ export class UserService extends CrudHelper<User> {
   }
 
   async populateUsers() {
-    //const employees = await this.employeeService.getEmployeesForPopulation();
+    const employees = await this.employeeService.getEmployeesForPopulation();
     //return employees;
     // const passwords = [
     //   'zVk3xrkh',
@@ -254,52 +254,54 @@ export class UserService extends CrudHelper<User> {
     //   'fRlgF2v7',
     // ];
 
-    const passNolito = await this.passwordService.hashPassword('@nolito2016012');
+    // const passNolito = await this.passwordService.hashPassword('@nolito2016012');
 
-    return {
-      passNolito,
-    };
-    // const result = await this.dataSource.transaction(async (manager) => {
-    //   const userResults = await Promise.all(
-    //     employees.map(async (employee) => {
-    //       //return employee.companyId;
-    //       //const password = passwords[idx];
-    //       const hashedPassword = await this.passwordService.hashPassword(employee.password);
-    //       // return hashedPassword;
-    //       await this.userRepository.query(
-    //         `UPDATE \`users\` SET \`password\` = ?, email= ? WHERE \`users\`.\`user_id\` = ? ;`,
-    //         [hashedPassword, employee.email, employee.employeeId],
-    //       );
-    //       const newUser = await manager
-    //         .createQueryBuilder()
-    //         .insert()
-    //         .into(User)
-    //         .values({ _id: employee.employeeId, email: employee.email, password: hashedPassword })
-    //         .execute();
+    // return {
+    //   passNolito,
+    // };
+    const result = await this.dataSource.transaction(async (manager) => {
+      const userResults = await Promise.all(
+        employees.map(async (employee) => {
+          //return employee.companyId;
+          //const password = passwords[idx];
+          const hashedPassword = await this.passwordService.hashPassword(employee.password);
+          // return hashedPassword;
 
-    //       const newEmployeeDetails = await manager
-    //         .createQueryBuilder()
-    //         .insert()
-    //         .into(Employee)
-    //         .values({
-    //           companyId: employee.companyId,
-    //           firstName: employee.firstName,
-    //           middleName: employee.middleName,
-    //           lastName: employee.lastName,
-    //           nameExtension: employee.nameExt,
-    //           email: employee.email,
-    //           mobileNumber: '',
-    //           sex: Sex.MALE,
-    //           photoUrl: '',
-    //           userId: employee.employeeId,
-    //           birthDate: '2000-01-01',
-    //         })
-    //         .execute();
-    //       return { ...employee, hashedPassword };
-    //     }),
-    //   );
-    //   return userResults;
-    // });
-    // return result;
+          // await this.userRepository.query(
+          //   `UPDATE \`users\` SET \`password\` = ?, email= ? WHERE \`users\`.\`user_id\` = ? ;`,
+          //   [hashedPassword, employee.email, employee.employeeId],
+          // );
+
+          const newUser = await manager
+            .createQueryBuilder()
+            .insert()
+            .into(User)
+            .values({ _id: employee.employeeId, email: employee.email, password: hashedPassword })
+            .execute();
+
+          const newEmployeeDetails = await manager
+            .createQueryBuilder()
+            .insert()
+            .into(Employee)
+            .values({
+              companyId: employee.companyId,
+              firstName: employee.firstName,
+              middleName: employee.middleName,
+              lastName: employee.lastName,
+              nameExtension: employee.nameExt,
+              email: employee.email,
+              mobileNumber: '',
+              sex: Sex.MALE,
+              photoUrl: '',
+              userId: employee.employeeId,
+              birthDate: '2000-01-01',
+            })
+            .execute();
+          return { ...employee, hashedPassword };
+        }),
+      );
+      return userResults;
+    });
+    return result;
   }
 }
