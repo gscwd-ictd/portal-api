@@ -89,7 +89,8 @@ export class StatsNotificationsService {
       positionTitle === 'OIC-Division Manager' ||
       positionTitle === 'OIC-Department Manager' ||
       positionTitle === 'OIC-Assistant General Manager' ||
-      positionTitle === 'OIC-General Manager'
+      positionTitle === 'OIC-General Manager' ||
+      user._id === 'af7bbec8-b26e-11ed-a79b-000c29f95a80'
         ? await this.getAllPendingForManagersEms(user._id)
         : null;
     const pendingAppointingAuthoritySelection =
@@ -118,7 +119,13 @@ export class StatsNotificationsService {
       pendingLeavesCount: string;
       pendingOvertimesCount: string;
     };
-
+    if (employeeId === 'af7bbec8-b26e-11ed-a79b-000c29f95a80') {
+      return {
+        pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
+        pendingLeavesCount: null,
+        pendingOvertimesCount: null,
+      };
+    }
     return {
       pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
       pendingLeavesCount: parseInt(result.pendingLeavesCount),
