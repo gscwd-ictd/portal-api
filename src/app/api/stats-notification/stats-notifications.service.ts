@@ -56,9 +56,9 @@ export class StatsNotificationsService {
 
     const pendingDtrCorrectionsApprovals = await this.dtrCorrectionsService.getPendingDtrCorrections(user);
     const forHrdmApprovalLeaves = await this.leaveApplicationsService.getForHrdmApprovalCount(user);
-    const pendingOvertimeApprovals = await this.overtimeApplicationsService.getPendingOvertimeApplicationApprovalCount(
-      user,
-    );
+    // const pendingOvertimeApprovals = await this.overtimeApplicationsService.getPendingOvertimeApplicationApprovalCount(
+    //   user,
+    // );
 
     const prfsForApprovalCount =
       positionTitle === 'Department Manager A' ||
@@ -100,7 +100,7 @@ export class StatsNotificationsService {
       pendingTrainingNominationCount,
       pendingDtrCorrectionsApprovals,
       forHrdmApprovalLeaves,
-      pendingOvertimeApprovals,
+      //pendingOvertimeApprovals,
       pendingPdcSecretariatApprovalCount,
       pendingPdcChairmanApprovalCount,
       pendingGmApprovalCount,
@@ -116,7 +116,9 @@ export class StatsNotificationsService {
       pendingPassSlipsCount: string;
       pendingLeavesCount: string;
       pendingOvertimesCount: string;
+      pendingOvertimeAccomplishmentApprovalsCount: string;
     };
+
     if (employeeId === 'af7bbec8-b26e-11ed-a79b-000c29f95a80') {
       return {
         pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
@@ -128,6 +130,7 @@ export class StatsNotificationsService {
       pendingPassSlipsCount: parseInt(result.pendingPassSlipsCount),
       pendingLeavesCount: parseInt(result.pendingLeavesCount),
       pendingOvertimesCount: parseInt(result.pendingOvertimesCount),
+      pendingOvertimeAccomplishmentsApprovalCount: parseInt(result.pendingOvertimeAccomplishmentApprovalsCount),
     };
   }
 }
