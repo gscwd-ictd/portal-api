@@ -27,4 +27,4 @@ import { TrainingsModule } from '../trainings/trainings.module';
   providers: [StatsNotificationsService],
   controllers: [StatsNotificationsController],
 })
-export class StatsNotificationModules {}
+export class StatsNotificationModules { }

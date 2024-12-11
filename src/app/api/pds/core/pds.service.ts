@@ -72,7 +72,7 @@ export class PdsService {
     private readonly client: ClientProxy,
     private readonly workExperienceSheetService: WorkExperienceSheetService,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async savePds(pdsDto: PdsDTO, employeeId: string) {
     try {
@@ -472,7 +472,7 @@ export class PdsService {
       });
       return result;
     } catch (error) {
-      //console.log('shit');
+      console.log(error);
       throw new HttpException(error.message, 500);
     }
   }

@@ -7,7 +7,7 @@ import { UpdateLeaveApplicationHrdmStatusDto } from '../data/leave-application-s
 
 @Injectable()
 export class LeaveApplicationsService {
-  constructor(@Inject(MicroserviceType.EMPLOYEE_MONITORING) private readonly client: ClientProxy) {}
+  constructor(@Inject(MicroserviceType.EMPLOYEE_MONITORING) private readonly client: ClientProxy) { }
 
   async getForHrdmApprovalCount(user: AuthenticatedUser) {
     const employeeId = user._id;
