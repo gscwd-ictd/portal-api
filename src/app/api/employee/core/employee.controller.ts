@@ -1,19 +1,20 @@
 import { TestNested } from './../data/employee.dto';
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from '../../../../global/guards/authenticated.guard';
 import { CreateEmployeeDto, TestDTO, UpdateEmployeeDto } from '../data/employee.dto';
 import { EmployeeService } from './employee.service';
 import { User } from '../../../../global/decorators/user.decorator';
 import { AuthenticatedUser } from '../../../../utils/types/auth-type';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { EmployeeDetailsFilter } from '../utils/employee-details-report.type';
+import { MsExceptionFilter } from '../../../../utils/filters/rpc-exception.filter';
 
 @Controller('employees')
 export class EmployeeController {
   constructor(
     // inject employee service
     private readonly employeeService: EmployeeService,
-  ) {}
+  ) { }
 
   @Get('credentials')
   async getEmployeesForPopulation() {
@@ -62,41 +63,83 @@ export class EmployeeController {
     return await this.employeeService.deleteRecord(employeeId);
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'get_employee_info_pds' })
   async findEmployeeByIdMS(@Payload() employeeId: string) {
-    return await this.employeeService.getEmployeePersonalInfo(employeeId);
+    try {
+      return await this.employeeService.getEmployeePersonalInfo(employeeId);
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'get_employee_portal_details' })
   async getEmployeePortalDetails(@Payload() employeeId: string) {
-    return await this.employeeService.getEmployeeDetails(employeeId);
+    try {
+      return await this.employeeService.getEmployeeDetails(employeeId);
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'find_email_by_employee_id' })
   async getEmail(@Payload() employeeId: string) {
-    return await this.employeeService.getEmail(employeeId);
+    try {
+      return await this.employeeService.getEmail(employeeId);
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'get_employee_birthdays_for_the_current_month' })
   async getBirthDaysForTheCurrentMonth() {
-    return await this.employeeService.getBirthDaysForTheCurrentMonth();
+    try {
+      return await this.employeeService.getBirthDaysForTheCurrentMonth();
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'count_personnel_by_age_bracket' })
   async countPersonnelByAgeBracket() {
-    return await this.employeeService.countPersonnelByAgeBracket();
+    try {
+      return await this.employeeService.countPersonnelByAgeBracket();
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'find_employee_gender_by_employee_id' })
   async findAllEmployeeGender(@Payload() employeeId: string) {
-    return await this.employeeService.findAllEmployeeGender(employeeId);
+    try {
+      return await this.employeeService.findAllEmployeeGender(employeeId);
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'generate_report_on_employee_details' })
   async generateReportOnEmployeeDetails(
     @Payload()
     employeeDetailsFilter: EmployeeDetailsFilter,
   ) {
-    return await this.employeeService.generateReportOnEmployeeDetails(employeeDetailsFilter);
+    try {
+      return await this.employeeService.generateReportOnEmployeeDetails(employeeDetailsFilter);
+    }
+    catch (error) {
+      throw new RpcException(error);
+    }
   }
 }

@@ -1,12 +1,13 @@
 import { WorkExperienceSheetAddDTO } from './../data/work-experience-sheet.dto';
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseFilters } from '@nestjs/common';
 import { WorkExperienceSheetDTO } from '../data/work-experience-sheet.dto';
 import { WorkExperienceSheetService } from './work-experience-sheet.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { MsExceptionFilter } from '../../../../../../utils/filters/rpc-exception.filter';
 
 @Controller('pds/work-experience-sheet/')
 export class WorkExperienceSheetController {
-  constructor(private readonly workExperienceSheetService: WorkExperienceSheetService) {}
+  constructor(private readonly workExperienceSheetService: WorkExperienceSheetService) { }
   @Post(':posting_applicant_id')
   async addWorkExperienceSheet(
     @Param('posting_applicant_id') postingApplicantId: string,
@@ -15,20 +16,20 @@ export class WorkExperienceSheetController {
     return await this.workExperienceSheetService.addWorkExperienceSheet(postingApplicantId, workExperienceSheetDTO);
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern({ msg: 'add_employee_work_experience_sheet' })
   async addWorkExperienceSheetMS(
     @Payload() payload: { postingApplicantId: string; workExperienceSheetAddDTO: WorkExperienceSheetAddDTO },
   ) {
-    console.log('Emp Portal MS: ', payload);
-    return await this.workExperienceSheetService.addWorkExperienceSheet(
-      payload.postingApplicantId,
-      payload.workExperienceSheetAddDTO,
-    );
-  }
-
-  @Get('applicants')
-  async test() {
-    return 'asd';
+    try {
+      return await this.workExperienceSheetService.addWorkExperienceSheet(
+        payload.postingApplicantId,
+        payload.workExperienceSheetAddDTO,
+      );
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 
   @Get('/applicants/:posting_applicant_id')
