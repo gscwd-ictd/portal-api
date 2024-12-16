@@ -91,10 +91,13 @@ export class UserService extends CrudHelper<User> {
   }
 
   async verifyPassword(credentials: UserCredentials) {
-    const user = await this.findUserByEmail(credentials.email);
-    console.log(user);
-    // verify if password is valid
-    return await this.passwordService.verifyPassword(user.password, credentials.password);
+    try {
+      const user = await this.findUserByEmail(credentials.email);
+      // verify if password is valid
+      return await this.passwordService.verifyPassword(user.password, credentials.password);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   async getMobileNoByUserCreds(credentials: UserCredentials) {
