@@ -26,7 +26,7 @@ export type EmployeeDetailsFilter = {
   department: boolean;
   division: boolean;
   salaryGrade: boolean;
-  stepIncrement: boolean;
+  amount: boolean;
 };
 
 export type EmployeeDetailsReport = {
@@ -63,5 +63,5 @@ export type EmployeeDetailsReport = {
   department: string;
   division: string;
   salaryGrade: string;
-  stepIncrement: string;
+  amount: string;
 };
