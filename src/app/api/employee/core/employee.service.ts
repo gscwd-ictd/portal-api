@@ -281,8 +281,6 @@ export class EmployeeService extends CrudHelper<Employee> {
       }),
     );
 
-    //console.log('EMPOY: ');
-
     const personalDetails = await Promise.all(
       employees.map(async (employee) => {
         const { personalDetails, employmentDetails } = employee;
@@ -296,8 +294,12 @@ export class EmployeeService extends CrudHelper<Employee> {
 
         const salaryGradeDetails = await this.getEmployeeDetailsFromHr(employmentDetails.employeeId);
 
-        const salaryGrade = salaryGradeDetails.salaryGradeLevel;
-        const stepIncrement = salaryGradeDetails.salaryGradeStepIncrement;
+        const salaryGrade = salaryGradeDetails.salaryGrade;
+        const salaryGradeAmount =
+          employeeDetailsFilter.natureOfAppointment === 'casual' ||
+            employeeDetailsFilter.natureOfAppointment === 'permanent'
+            ? salaryGradeDetails.salaryGradeAmount
+            : salaryGradeDetails.dailyRate;
 
         const portalPersonalDetails = await this.employeeRepository.query(
           `SELECT company_id companyId,sex, DATE_FORMAT(birth_date,'%M %d, %Y') birthDate FROM employees WHERE user_id_fk=?`,
@@ -339,26 +341,26 @@ export class EmployeeService extends CrudHelper<Employee> {
         const result =
           portalPersonalDetails.length > 0
             ? {
-                ...personalDetails,
-                ...assignment,
-                positionTitle,
-                natureOfAppointment: employee.employmentDetails.natureOfAppointment,
-                ...portalPersonalDetails[0],
-                ...pdsBasicInfo[0],
-                salaryGrade,
-                stepIncrement,
-              }
+              ...personalDetails,
+              ...assignment,
+              positionTitle,
+              natureOfAppointment: employee.employmentDetails.natureOfAppointment,
+              ...portalPersonalDetails[0],
+              ...pdsBasicInfo[0],
+              salaryGrade,
+              salaryGradeAmount,
+            }
             : {
-                ...personalDetails,
-                ...assignment,
-                positionTitle,
-                natureOfAppointment: employee.employmentDetails.natureOfAppointment,
-                sex: null,
-                birthdate: null,
-                ...pdsBasicInfo[0],
-                salaryGrade,
-                stepIncrement,
-              };
+              ...personalDetails,
+              ...assignment,
+              positionTitle,
+              natureOfAppointment: employee.employmentDetails.natureOfAppointment,
+              sex: null,
+              birthdate: null,
+              ...pdsBasicInfo[0],
+              salaryGrade,
+              salaryGradeAmount,
+            };
 
         return await this.personalDetailsFilterColumns(employeeDetailsFilter, result);
       }),
@@ -395,33 +397,33 @@ export class EmployeeService extends CrudHelper<Employee> {
       department,
       division,
       salaryGrade,
-      stepIncrement,
+      amount,
     } = employeeDetailsFilter;
 
-    if (!gsis) delete returnedDetails['gsis'];
-    if (!pagibig) delete returnedDetails['pagibig'];
-    if (!sss) delete returnedDetails['sss'];
-    if (!tin) delete returnedDetails['tin'];
-    if (!philhealth) delete returnedDetails['philhealth'];
-    if (!companyId) delete returnedDetails['companyId'];
-    if (!collegeEducation) delete returnedDetails['collegeEducation'];
-    if (!primaryEducation) delete returnedDetails['primaryEducation'];
-    if (!eligibility) delete returnedDetails['eligibility'];
-    if (!graduateStudies) delete returnedDetails['graduateStudies'];
-    if (!natureOfAppointment) delete returnedDetails['natureOfAppointment'];
-    if (!permanentAddress) delete returnedDetails['permanentAddress'];
-    if (!residentialAddress) delete returnedDetails['residentialAddress'];
-    if (!secondaryEducation) delete returnedDetails['secondaryEducation'];
-    if (!vocationalCourse) delete returnedDetails['vocationalCourse'];
-    if (!assignment) delete returnedDetails['assignment'];
-    if (!office) delete returnedDetails['office'];
-    if (!department) delete returnedDetails['department'];
-    if (!division) delete returnedDetails['division'];
-    if (!positionTitle) delete returnedDetails['positionTitle'];
-    if (!dateHired) delete returnedDetails['dateHired'];
-    if (!salaryGrade) delete returnedDetails['salaryGrade'];
-    if (!stepIncrement) delete returnedDetails['stepIncrement'];
-    if (!personalDetails) {
+    if (gsis.toString() === 'false') delete returnedDetails['gsis'];
+    if (pagibig.toString() === 'false') delete returnedDetails['pagibig'];
+    if (sss.toString() === 'false') delete returnedDetails['sss'];
+    if (tin.toString()) delete returnedDetails['tin'];
+    if (philhealth.toString() === 'false') delete returnedDetails['philhealth'];
+    if (companyId.toString() === 'false') delete returnedDetails['companyId'];
+    if (collegeEducation.toString() === 'false') delete returnedDetails['collegeEducation'];
+    if (primaryEducation.toString() === 'false') delete returnedDetails['primaryEducation'];
+    if (eligibility.toString() === 'false') delete returnedDetails['eligibility'];
+    if (graduateStudies.toString() === 'false') delete returnedDetails['graduateStudies'];
+    if (natureOfAppointment.toString() === 'false') delete returnedDetails['natureOfAppointment'];
+    if (permanentAddress.toString() === 'false') delete returnedDetails['permanentAddress'];
+    if (residentialAddress.toString() === 'false') delete returnedDetails['residentialAddress'];
+    if (secondaryEducation.toString() === 'false') delete returnedDetails.secondaryEducation;
+    if (vocationalCourse.toString() === 'false') delete returnedDetails['vocationalCourse'];
+    if (assignment.toString() === 'false') delete returnedDetails['assignment'];
+    if (office.toString() === 'false') delete returnedDetails['office'];
+    if (department.toString() === 'false') delete returnedDetails['department'];
+    if (division.toString() === 'false') delete returnedDetails['division'];
+    if (positionTitle.toString() === 'false') delete returnedDetails['positionTitle'];
+    if (dateHired.toString() === 'false') delete returnedDetails['dateHired'];
+    if (salaryGrade.toString() === 'false') delete returnedDetails['salaryGrade'];
+    if (amount.toString() === 'false') delete returnedDetails['salaryGradeAmount'];
+    if (personalDetails.toString() === 'false') {
       delete returnedDetails['email'];
       delete returnedDetails['birthPlace'];
       delete returnedDetails['birthDate'];
