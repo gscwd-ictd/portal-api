@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DtrCorrectionsModule } from '../dtr-corrections/dtr-corrections.module';
 import { LeaveApplicationsModule } from '../leave-applications/core/leave-applications.module';
-import { DtrCorrectionsService } from '../dtr-corrections/dtr-corrections.service';
-import { DtrCorrectionsController } from '../dtr-corrections/dtr-corrections.controller';
 import { ClientsModule } from '@nestjs/microservices';
 import { EmployeeDetailsMicroservice, RedisConfigForEmployeeMonitoring } from '../../../config/microservice.config';
 import { MicroserviceType } from '../../../utils/types/microservice-type';

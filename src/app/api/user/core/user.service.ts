@@ -1,11 +1,4 @@
-import {
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthenticatedUser, UserCredentials } from '../../../../utils/types/auth-type';
@@ -19,9 +12,6 @@ import { PendingUserService } from '../../pending-user/core/pending-user.service
 import { Request, Response } from 'express';
 import { EmployeeService } from '../../employee/core/employee.service';
 import { Employee, Sex } from '../../employee/data/employee.entity';
-import { ClientProxy } from '@nestjs/microservices';
-import { MicroserviceType } from 'src/utils/types/microservice-type';
-import { hash } from 'argon2';
 import { EmployeeDetailsFromHr } from '../../employee/utils/employee.type';
 
 @Injectable()
@@ -108,75 +98,89 @@ export class UserService extends CrudHelper<User> {
   }
 
   async getMobileNoByUserCreds(credentials: UserCredentials) {
-    const user = await this.findUserByEmail(credentials.email);
-    const employeeDetails: EmployeeDetailsFromHr = await this.employeeService.getEmployeeDetailsFromHr(user._id);
+    try {
+      const user = await this.findUserByEmail(credentials.email);
 
-    const isMatched = await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
-    if (isMatched) {
-      return {
-        mobileNumber: (await this.employeeService.findRecordByUserId(user._id)).mobileNumber,
-        shouldOtpOnLogin: await this.shouldOtpOnLogin(employeeDetails),
-      };
+      const employeeDetails: EmployeeDetailsFromHr = await this.employeeService.getEmployeeDetailsFromHr(user._id);
+
+      const isMatched = await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
+      if (isMatched) {
+        return {
+          mobileNumber: (await this.employeeService.findRecordByUserId(user._id)).mobileNumber,
+          shouldOtpOnLogin: await this.shouldOtpOnLogin(employeeDetails),
+        };
+      }
+      throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
+    } catch (error) {
+      throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
     }
-    throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
   }
 
   private async shouldOtpOnLogin(employeeDetails: EmployeeDetailsFromHr) {
-    const {
-      isPdcChairman,
-      isPdcSecretariat,
-      officerOfTheDay,
-      isHRMPSB,
-      overtimeImmediateSupervisorId,
-      assignment: { positionTitle },
-    } = employeeDetails;
+    try {
+      const {
+        isPdcChairman,
+        isPdcSecretariat,
+        officerOfTheDay,
+        isHRMPSB,
+        overtimeImmediateSupervisorId,
+        assignment: { positionTitle },
+      } = employeeDetails;
 
-    if (
-      positionTitle === 'Division Manager A' ||
-      positionTitle === 'Department Manager A' ||
-      positionTitle === 'Assistant General Manager' ||
-      positionTitle === 'General Manager A' ||
-      positionTitle === 'OIC-Division Manager' ||
-      positionTitle === 'OIC-Department Manager' ||
-      positionTitle === 'OIC-Assistant General Manager' ||
-      positionTitle === 'OIC-General Manager'
-    ) {
-      return true;
-    } else {
       if (
-        isPdcChairman ||
-        isPdcSecretariat ||
-        officerOfTheDay.length > 0 ||
-        isHRMPSB ||
-        overtimeImmediateSupervisorId !== null
+        positionTitle === 'Division Manager A' ||
+        positionTitle === 'Department Manager A' ||
+        positionTitle === 'Assistant General Manager' ||
+        positionTitle === 'General Manager A' ||
+        positionTitle === 'OIC-Division Manager' ||
+        positionTitle === 'OIC-Department Manager' ||
+        positionTitle === 'OIC-Assistant General Manager' ||
+        positionTitle === 'OIC-General Manager'
       ) {
         return true;
+      } else {
+        if (
+          isPdcChairman ||
+          isPdcSecretariat ||
+          officerOfTheDay.length > 0 ||
+          isHRMPSB ||
+          overtimeImmediateSupervisorId !== null
+        ) {
+          return true;
+        }
+        return false;
       }
+    } catch (error) {
       return false;
     }
   }
 
   async isValidUser(credentials: UserCredentials) {
-    const user = await this.findUserByEmail(credentials.email);
-    return await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
+    try {
+      const user = await this.findUserByEmail(credentials.email);
+      return await this.passwordService.verifyPasswordBoolean(user.password, credentials.password);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   async verifyUser(credentials: UserCredentials): Promise<AuthenticatedUser> {
-    // find user via email
-    const user = await this.findUserByEmail(credentials.email);
-
-    // verify if password is valid
-    await this.passwordService.verifyPassword(user.password, credentials.password);
-
-    // return user without password
-    return this.passwordService.removePassword(user);
+    try {
+      // find user via email
+      const user = await this.findUserByEmail(credentials.email);
+      // verify if password is valid
+      await this.passwordService.verifyPassword(user.password, credentials.password);
+      // return user without password
+      return this.passwordService.removePassword(user);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   async findUserDetails(_id: string): Promise<AuthenticatedUser> {
     try {
       // get user details from database
       const userDetails = await this.userRepository.createQueryBuilder().select().where({ _id }).getOneOrFail();
-
       // return user without its password
       return this.passwordService.removePassword(userDetails);
     } catch (error) {
@@ -211,7 +215,6 @@ export class UserService extends CrudHelper<User> {
   public invalidateSession(request: Request, response: Response): void {
     // send a response to the client setting the header to remove the cookie in the browser
     response.setHeader('Set-Cookie', 'ssid_portal=deleted; Max-Age=0; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
-
     // destroy the session cookie from the redis store6
     request.session.destroy(() => null);
   }
@@ -237,41 +240,10 @@ export class UserService extends CrudHelper<User> {
 
   async populateUsers() {
     const employees = await this.employeeService.getEmployeesForPopulation();
-    //return employees;
-    // const passwords = [
-    //   'zVk3xrkh',
-    //   'NQuBHDVq',
-    //   'n1FwGwCk',
-    //   'Nzhbbk4s',
-    //   '4DFJakZn',
-    //   'DsEbnjv5',
-    //   'Cpf2umWA',
-    //   'R98uPvMu',
-    //   'uh3rtuxE',
-    //   'CKtdxy11',
-    //   '03mSTqhX',
-    //   'GufCQlY7',
-    //   'fRlgF2v7',
-    // ];
-
-    // const passNolito = await this.passwordService.hashPassword('@nolito2016012');
-
-    // return {
-    //   passNolito,
-    // };
     const result = await this.dataSource.transaction(async (manager) => {
       const userResults = await Promise.all(
         employees.map(async (employee) => {
-          //return employee.companyId;
-          //const password = passwords[idx];
           const hashedPassword = await this.passwordService.hashPassword(employee.password);
-          // return hashedPassword;
-
-          // await this.userRepository.query(
-          //   `UPDATE \`users\` SET \`password\` = ?, email= ? WHERE \`users\`.\`user_id\` = ? ;`,
-          //   [hashedPassword, employee.email, employee.employeeId],
-          // );
-
           const newUser = await manager
             .createQueryBuilder()
             .insert()

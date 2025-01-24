@@ -23,12 +23,7 @@ export class StatsNotificationsService {
 
   async getForApprovalNotifications(user: AuthenticatedUser) {
     const employeeDetails = await this.employeeService.getEmployeeDetailsFromHr(user._id);
-
-    console.log(employeeDetails);
     const positionTitle = employeeDetails.assignment.positionTitle;
-
-    console.log('le position', positionTitle);
-
     const pendingTrainingNominationCount =
       positionTitle === 'Division Manager A' ||
         positionTitle === 'Department Manager A' ||
@@ -102,9 +97,9 @@ export class StatsNotificationsService {
       pendingDtrCorrectionsApprovals,
       forHrdmApprovalLeaves,
       pendingOvertimeApprovals,
-      pendingPdcSecretariatApprovalCount: null,
-      pendingPdcChairmanApprovalCount: null,
-      pendingGmApprovalCount: null,
+      pendingPdcSecretariatApprovalCount,
+      pendingPdcChairmanApprovalCount,
+      pendingGmApprovalCount,
       prfsForApprovalCount,
       pendingApplicantEndorsementsCount,
       ...allPendingForManagersEms,

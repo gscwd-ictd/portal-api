@@ -338,26 +338,26 @@ export class EmployeeService extends CrudHelper<Employee> {
         const result =
           portalPersonalDetails.length > 0
             ? {
-                ...personalDetails,
-                ...assignment,
-                positionTitle,
-                natureOfAppointment: employee.employmentDetails.natureOfAppointment,
-                ...portalPersonalDetails[0],
-                ...pdsBasicInfo[0],
-                salaryGrade,
-                stepIncrement,
-              }
+              ...personalDetails,
+              ...assignment,
+              positionTitle,
+              natureOfAppointment: employee.employmentDetails.natureOfAppointment,
+              ...portalPersonalDetails[0],
+              ...pdsBasicInfo[0],
+              salaryGrade,
+              stepIncrement,
+            }
             : {
-                ...personalDetails,
-                ...assignment,
-                positionTitle,
-                natureOfAppointment: employee.employmentDetails.natureOfAppointment,
-                sex: null,
-                birthdate: null,
-                ...pdsBasicInfo[0],
-                salaryGrade,
-                stepIncrement,
-              };
+              ...personalDetails,
+              ...assignment,
+              positionTitle,
+              natureOfAppointment: employee.employmentDetails.natureOfAppointment,
+              sex: null,
+              birthdate: null,
+              ...pdsBasicInfo[0],
+              salaryGrade,
+              stepIncrement,
+            };
 
         return await this.personalDetailsFilterColumns(employeeDetailsFilter, result);
       }),
