@@ -5,7 +5,7 @@ import { ChildrenService } from './children.service';
 
 @Controller('pds/family/children')
 export class ChildrenController {
-  constructor(private readonly childService: ChildrenService) {}
+  constructor(private readonly childService: ChildrenService) { }
 
   @Post(':employee_id')
   async createChild(@Param('employee_id') employeeId: string, @Body() childrenDTO: ChildrenDTO) {

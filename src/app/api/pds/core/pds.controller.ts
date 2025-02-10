@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Body, Controller, Get, Param, Post, UseFilters } from '@nestjs/common';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { PdsDTO } from '../data/pds.dto';
 import { PdsService } from './pds.service';
+import { MsExceptionFilter } from '../../../../utils/filters/rpc-exception.filter';
 
 @Controller('api/pds')
 export class PdsController {
-  constructor(private readonly pdsService: PdsService) {}
+  constructor(private readonly pdsService: PdsService) { }
 
   @Get(':employee_id')
   async getPds(@Param('employee_id') employeeId: string) {
@@ -32,12 +33,16 @@ export class PdsController {
     return await this.pdsService.savePds(pdsDto, employeeId);
   }
 
+  @UseFilters(new MsExceptionFilter())
   @MessagePattern('get_lsp_pds_details')
   async getLspPdsDetails(@Payload() employeeId: string) {
-    //
-    //
-    const result = await this.pdsService.getLspPdsDetails(employeeId);
-    //console.log(result);
-    return result;
+    try {
+      const result = await this.pdsService.getLspPdsDetails(employeeId);
+      //console.log(result);
+      return result;
+    }
+    catch (error) {
+      throw new RpcException(error.message);
+    }
   }
 }
