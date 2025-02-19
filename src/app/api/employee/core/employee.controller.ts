@@ -44,6 +44,11 @@ export class EmployeeController {
     return await this.employeeService.findAllRecords();
   }
 
+  @Get('test')
+  async testing() {
+    return 'asd asd';
+  }
+
   @UseGuards(AuthenticatedGuard)
   @Get('/:id')
   async findEmployeeById(@Param('id') employeeId: string) {

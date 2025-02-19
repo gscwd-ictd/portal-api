@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PdsDTO } from '../data/pds.dto';
 import { PdsService } from './pds.service';
 
-@Controller('api/pds')
+@Controller('pds')
 export class PdsController {
   constructor(private readonly pdsService: PdsService) {}
 

@@ -11,7 +11,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       password: process.env.DB_PASS,
       autoLoadEntities: true,
       //entities: ['dist/**/*.entity{.ts,.js}', 'src/**/.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false,
       logging: false,
       retryAttempts: 10,
       retryDelay: 3000,

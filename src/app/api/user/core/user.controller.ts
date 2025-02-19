@@ -1,5 +1,5 @@
 import { PasswordService } from './../misc/password.service';
-import { Body, Controller, Get, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from '../../../../global/guards/authenticated.guard';
 import { User } from '../../../../global/decorators/user.decorator';
 import { LoginGuard } from '../../../../global/guards/login.guard';
@@ -23,12 +23,13 @@ export class UserController {
   @UseGuards(AuthenticatedGuard)
   @Get()
   async findAuthenticatedUser(@User() user: AuthenticatedUser) {
-    console.log(user);
-    const employmentDetails = await this.employeeService.getEmployeeDetailsFromHr(user._id);
-
-    const profile = await this.employeeService.findRecordByUserId(user._id);
-
-    return { user, employmentDetails, profile };
+    try {
+      const employmentDetails = await this.employeeService.getEmployeeDetailsFromHr(user._id);
+      const profile = await this.employeeService.findRecordByUserId(user._id);
+      return { user, employmentDetails, profile };
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Post('web/verify-password/')

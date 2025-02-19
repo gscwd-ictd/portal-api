@@ -5,9 +5,22 @@ import { AppModule } from './app.module';
 import { startMicroservice } from './config/hybrid.config';
 // import { AppMicroservice } from './config/hybrid.config';
 import { AppSession } from './config/session.config';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  /**
+   * 
+   * {
+    httpsOptions: {
+      key: readFileSync(join(__dirname, '../../dist/ssl/localhost.key'), 'utf-8'),
+      cert: readFileSync(join(__dirname, '../../dist/ssl/localhost.crt'), 'utf-8'),
+    },
+  }
+   * 
+   */
 
   // allow cors from specified origins
   app.enableCors({
@@ -36,6 +49,8 @@ async function bootstrap() {
       'http://172.20.10.58:3000',
       'http://172.20.10.63:3000',
       'http://172.20.10.63:3000',
+      'https://172.20.110.45',
+      'https://portal-45.gscwd.app',
     ],
     credentials: true,
   });
@@ -47,7 +62,7 @@ async function bootstrap() {
   AppSession.init(app);
 
   //app.useGlobalPipes(new ValidationPipe());
-  //app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api');
 
   await app.listen(process.env.APP_PORT, () =>
     new Logger('NestApplication').log(`Employee Portal running on port ${process.env.APP_PORT}`),

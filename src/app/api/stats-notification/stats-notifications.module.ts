@@ -11,6 +11,7 @@ import { StatsNotificationsController } from './stats-notifications.controller';
 import { OvertimeApplicationModule } from '../overtime-applications/core/overtime-applications.module';
 import { EmployeeModule } from '../employee/core/employee.module';
 import { TrainingsModule } from '../trainings/trainings.module';
+import { TestAddressController } from '../test/address.controller';
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import { TrainingsModule } from '../trainings/trainings.module';
     ]),
   ],
   providers: [StatsNotificationsService],
-  controllers: [StatsNotificationsController],
+  controllers: [StatsNotificationsController, TestAddressController],
 })
 export class StatsNotificationModules {}
