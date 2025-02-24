@@ -14,13 +14,25 @@ export class OvertimeApplicationService {
     return await lastValueFrom(this.client.send('get_overtime_approvals_count', _id));
   }
 
-  async deleteOvertimeEmployee(deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, user: AuthenticatedUser) {
+  async deleteOvertimeEmployeeByImmediateSupervisor(
+    deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto,
+    user: AuthenticatedUser,
+  ) {
     const result = await lastValueFrom(
-      this.client.send('delete_overtime_employee', {
+      this.client.send('delete_overtime_employee_by_immediate_supervisor', {
         ...deleteOvertimeEmployeeDto,
         immediateSupervisorEmployeeId: user._id,
       }),
     );
     return result;
   }
+
+  async deleteOvertimeEmployeeByManager(deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, user: AuthenticatedUser) {
+    const result = await lastValueFrom(
+      this.client.send('delete_overtime_employee_by_manager', { ...deleteOvertimeEmployeeDto, managerId: user._id }),
+    );
+    return result;
+  }
+
+  //!TODO modify/add dto/type respectivle to manager / immediate supervisor
 }
