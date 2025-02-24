@@ -8,15 +8,17 @@ import { AuthenticatedGuard } from '../../../../global/guards/authenticated.guar
 @UseGuards(AuthenticatedGuard)
 @Controller('overtime-applications')
 export class OvertimeApplicationsController {
-    constructor(private readonly overtimeApplicationService: OvertimeApplicationService) { }
+  constructor(private readonly overtimeApplicationService: OvertimeApplicationService) {}
 
-    @Delete('employee')
-    async deleteOvertimeEmployee(@Body() deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, @User() user: AuthenticatedUser) {
-        try {
-            return await this.overtimeApplicationService.deleteOvertimeEmployee(deleteOvertimeEmployeeDto, user);
-        }
-        catch ({ error }) {
-            throw new HttpException(error.message, error.code);
-        }
+  @Delete('employee')
+  async deleteOvertimeEmployee(
+    @Body() deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto,
+    @User() user: AuthenticatedUser,
+  ) {
+    try {
+      return await this.overtimeApplicationService.deleteOvertimeEmployee(deleteOvertimeEmployeeDto, user);
+    } catch ({ error }) {
+      throw new HttpException(error.message, error.code);
     }
+  }
 }

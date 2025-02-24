@@ -7,7 +7,7 @@ import { DeleteOvertimeEmployeeDto } from '../data/overtime-employee.dto';
 
 @Injectable()
 export class OvertimeApplicationService {
-  constructor(@Inject(MicroserviceType.EMPLOYEE_MONITORING) private readonly client: ClientProxy) { }
+  constructor(@Inject(MicroserviceType.EMPLOYEE_MONITORING) private readonly client: ClientProxy) {}
 
   async getPendingOvertimeApplicationApprovalCount(user: AuthenticatedUser) {
     const { _id } = user;
@@ -15,7 +15,12 @@ export class OvertimeApplicationService {
   }
 
   async deleteOvertimeEmployee(deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, user: AuthenticatedUser) {
-    const result = await lastValueFrom(this.client.send('delete_overtime_employee', { ...deleteOvertimeEmployeeDto, immediateSupervisorEmployeeId: user._id }));
+    const result = await lastValueFrom(
+      this.client.send('delete_overtime_employee', {
+        ...deleteOvertimeEmployeeDto,
+        immediateSupervisorEmployeeId: user._id,
+      }),
+    );
     return result;
   }
 }
