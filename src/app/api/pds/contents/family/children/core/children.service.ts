@@ -23,7 +23,7 @@ export class ChildrenService extends PdsCrudHelper<Child> {
       .orderBy('birth_date', 'DESC')
       .getMany();
     return children.map((child) => {
-      return { ...child, birthDate: dayjs(child.birthDate).format('YYYY-MM-DD') };
+      return { ...child };
     });
   }
 
