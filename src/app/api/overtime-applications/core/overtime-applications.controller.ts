@@ -10,10 +10,20 @@ import { AuthenticatedGuard } from '../../../../global/guards/authenticated.guar
 export class OvertimeApplicationsController {
     constructor(private readonly overtimeApplicationService: OvertimeApplicationService) { }
 
-    @Delete('employee')
-    async deleteOvertimeEmployee(@Body() deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, @User() user: AuthenticatedUser) {
+    @Delete('employee/immediate-supervisor')
+    async deleteOvertimeEmployeeByImmediateSupervisor(@Body() deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, @User() user: AuthenticatedUser) {
         try {
-            return await this.overtimeApplicationService.deleteOvertimeEmployee(deleteOvertimeEmployeeDto, user);
+            return await this.overtimeApplicationService.deleteOvertimeEmployeeByImmediateSupervisor(deleteOvertimeEmployeeDto, user);
+        }
+        catch ({ error }) {
+            throw new HttpException(error.message, error.code);
+        }
+    }
+
+    @Delete('employee/manager')
+    async deleteOvertimeEmployeeByManager(@Body() deleteOvertimeEmployeeDto: DeleteOvertimeEmployeeDto, @User() user: AuthenticatedUser) {
+        try {
+            return await this.overtimeApplicationService.deleteOvertimeEmployeeByManager(deleteOvertimeEmployeeDto, user);
         }
         catch ({ error }) {
             throw new HttpException(error.message, error.code);
