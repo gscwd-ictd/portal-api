@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { startMicroservice } from './config/hybrid.config';
 // import { AppMicroservice } from './config/hybrid.config';
 import { AppSession } from './config/session.config';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -49,6 +50,23 @@ async function bootstrap() {
   //app.useGlobalPipes(new ValidationPipe());
   //app.setGlobalPrefix('api');
 
+  app.use(
+    helmet({
+      xContentTypeOptions: true,
+      xXssProtection: true,
+      hsts: {
+        maxAge: 31536000, // 1 year (in seconds)
+        includeSubDomains: true, // Apply to all subdomains
+        preload: true, // Allow browser preloading
+      },
+    }),
+  );
+
+  app.use((req: any, res: { setHeader: (arg0: string, arg1: string) => void }, next: () => void) => {
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    next();
+  });
+  
   await app.listen(process.env.APP_PORT, () =>
     new Logger('NestApplication').log(`Employee Portal running on port ${process.env.APP_PORT}`),
   );
