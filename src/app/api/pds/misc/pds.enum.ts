@@ -15,6 +15,8 @@ export enum CivilStatus {
   OTHERS = 'Others',
   WIDOWED = 'Widowed',
   SEPARATED = 'Separated',
+  DIVORCED = 'Divorced',
+  ANNULLED = 'Annulled',
 }
 
 export enum BloodType {
@@ -39,5 +41,5 @@ export enum AppointmentStatus {
   TEMPORARY = 'Temporary',
   CONTRACTUAL = 'Contractual',
   TEMPORARY_PERMANENT = 'Temporary Permanent',
-  APPRENTICESHIP = 'Apprenticeship'
+  APPRENTICESHIP = 'Apprenticeship',
 }
