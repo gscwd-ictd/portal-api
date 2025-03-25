@@ -23,7 +23,7 @@ export class ChildrenService extends PdsCrudHelper<Child> {
       .orderBy('birth_date', 'DESC')
       .getMany();
     return children.map((child) => {
-      return { ...child, birthDate: dayjs(child.birthDate).format('YYYY-MM-DD') };
+      return { ...child };
     });
   }
 
@@ -57,14 +57,14 @@ export class ChildrenService extends PdsCrudHelper<Child> {
       ]);
 
       if (deleteResult.affected > 0) return children;
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async deleteChild(_id: string) {
     try {
       const deleteResult = await this.deleteRecord(_id);
       if (deleteResult.affected > 0) return { deletedChildId: _id };
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async addChildren(employeeId: string, childrenDTO: ChildrenDTO) {

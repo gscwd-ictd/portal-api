@@ -33,6 +33,5 @@ export class OvertimeApplicationService {
     );
     return result;
   }
-
   //!TODO modify/add dto/type respectivle to manager / immediate supervisor
 }
