@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Body, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { AuthenticatedUser } from '../../../../utils/types/auth-type';
 import { MicroserviceType } from '../../../../../src/utils/types/microservice-type';
-import { DeleteOvertimeEmployeeDto } from '../data/overtime-employee.dto';
+import { DeleteOvertimeEmployeeDto, UpdateOvertimeApplicationDto } from '../data/overtime-employee.dto';
 
 @Injectable()
 export class OvertimeApplicationService {
@@ -33,5 +33,14 @@ export class OvertimeApplicationService {
     );
     return result;
   }
-  //!TODO modify/add dto/type respectivle to manager / immediate supervisor
+
+  async updateOvertimeDetails(
+    @Body() updateOvertimeApplicationDto: UpdateOvertimeApplicationDto,
+    user: AuthenticatedUser,
+  ) {
+    const result = await lastValueFrom(
+      this.client.send('update_overtime_details', { ...updateOvertimeApplicationDto, employeeId: user._id }),
+    );
+    return result;
+  }
 }
