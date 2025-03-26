@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsUUID } from 'class-validator';
+import { IsArray, IsDate, IsNumber, IsUUID } from 'class-validator';
 
 export class DeleteOvertimeEmployeeDto {
   @IsUUID()
@@ -17,4 +17,7 @@ export class UpdateOvertimeApplicationDto {
   estimatedHours: number;
   @IsDate()
   plannedDate: Date;
+  @IsArray()
+  @IsUUID('all', { each: true })
+  employees: string[];
 }
