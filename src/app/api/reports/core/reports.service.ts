@@ -54,25 +54,41 @@ export class ReportsService {
     try {
       return await this.dataSource.query(
         `
-        SELECT 
-            DATE_FORMAT(dtr_date,'%d') dtrDay, 
-            time_in timeIn, 
-            lunch_out lunchOut, 
-            lunch_in lunchIn, 
-            time_out timeOut, 
-            schedule_id_fk 
-         FROM employee_monitoring.daily_time_record 
-        WHERE 
-            YEAR(dtr_date) = ? 
-            AND MONTH(dtr_date) = ? 
-            AND DATE_FORMAT(dtr_date,'%d') IN (?)
-        AND company_id_fk=? ORDER BY dtr_date ASC;
-`,
-        [year, month, dayRange, companyId],
+          SELECT DISTINCT
+              dtr.daily_time_record_id dtrId,
+              dtr.company_id_fk companyId,
+              DATE_FORMAT(dtr.dtr_date,'%Y-%m-%d') dtrDate,
+              dtr.time_in timeIn,
+              dtr.lunch_out lunchOut,
+              dtr.lunch_in lunchIn,
+              dtr.time_out timeOut,
+              sched.time_in schedTimeIn,
+              sched.time_out schedTimeOut,
+              sched.lunch_in schedLunchIn,
+              sched.lunch_out schedLunchOut,
+              sched.shift shift
+          FROM employee_monitoring.daily_time_record dtr INNER JOIN (
+                (SELECT dtr.dtr_date, count(dtr.dtr_date) dtrCount FROM employee_monitoring.daily_time_record dtr WHERE
+                    (
+                        YEAR(dtr.dtr_date) = ?
+                        AND MONTH(dtr.dtr_date) = ?
+                        AND DATE_FORMAT(dtr.dtr_date,'%d')
+                        IN (?)
+                    )
+                AND company_id_fk = ? GROUP BY dtr_date)
+            ) dtrAndCount ON dtrAndCount.dtr_date = dtr.dtr_date
+            INNER JOIN employee_monitoring.schedule sched ON sched.schedule_id = dtr.schedule_id_fk
+            WHERE (
+                        YEAR(dtr.dtr_date) = ?
+                        AND MONTH(dtr.dtr_date) = ?
+                        AND DATE_FORMAT(dtr.dtr_date,'%d')
+                        IN (?)
+            ) AND dtr.company_id_fk = ? AND not (dtrAndCount.dtrCount > 1 AND dtr.time_out IS NULL) ORDER BY dtrDate ASC;`,
+        [year, month, dayRange, companyId, year, month, dayRange, companyId],
       );
     } catch (error) {
       console.log(error);
-      throw new NotFoundException('no dtr found');
+      throw new NotFoundException('no DTR found');
     }
   }
 }
