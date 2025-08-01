@@ -67,19 +67,63 @@ export class ReportsService {
             const currSchedTimeIn = dayjs(dtrDate + ' ' + schedTimeIn);
             const currSchedTimeOut = dayjs(timeOutDate.format('YYYY-MM-DD') + ' ' + schedTimeOut);
             const nightDifferentialFrom = dayjs(dtrDate + ' 18:00:00');
-            const nightDifferentialTo = dayjs(dayjs(dtrDate).add(1, 'D').format('YYYY-MM-DD') + ' 06:00:00');
+            const nightDifferentialTo = dayjs(dayjs(dtrDate).format('YYYY-MM-DD') + ' 06:00:00').add(1, 'day');
             //per day check the night differential
             let nightDifferentialHours = 0;
+
+            console.log('curr time in', currTimeIn.format('YYYY-MM-DD HH:mm'));
+            console.log('curr time out', currTimeOut.format('YYYY-MM-DD HH:mm'));
+            console.log('curr sched time in', currSchedTimeIn.format('YYYY-MM-DD HH:mm'));
+            console.log('curr sched time out', currSchedTimeOut.format('YYYY-MM-DD HH:mm'));
+            console.log('night differential from', nightDifferentialFrom.format('YYYY-MM-DD HH:mm'));
+            console.log('night differential to', nightDifferentialTo.format('YYYY-MM-DD HH:mm'));
+
             if (
-              (currTimeIn.isBefore(currSchedTimeIn) || currTimeIn.isSame(currSchedTimeIn)) &&
-              (currTimeOut.isAfter(currSchedTimeOut) || currTimeIn.isSame(currSchedTimeOut)) &&
-              (currTimeIn.isBefore(nightDifferentialFrom) || currTimeIn.isSame(currSchedTimeIn)) &&
-              (currTimeOut.isAfter(nightDifferentialTo) || currTimeIn.isSame(nightDifferentialTo))
+              (nightDifferentialFrom.isAfter(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
+              nightDifferentialTo.isAfter(currSchedTimeOut) &&
+              nightDifferentialFrom.isBefore(currSchedTimeOut)
             ) {
-              nightDifferentialHours = 8;
-            } else {
-              //
+              // 01:00am - 06:00pm - 10:00pm - 6:00 am
+              if (currTimeOut.isAfter(currSchedTimeOut))
+                nightDifferentialHours =
+                  Math.round(
+                    (Math.round(currSchedTimeOut.diff(nightDifferentialFrom, 'minutes') * 100) / 100 / 60) * 100,
+                  ) / 100;
+              else
+                nightDifferentialHours =
+                  Math.round((Math.round(currTimeOut.diff(nightDifferentialFrom, 'minutes') * 100) / 100 / 60) * 100) /
+                  100;
+              console.log('night differential hours zxc', nightDifferentialHours);
             }
+            //6pm - 08:00pm - 05:00am- 6:00am = 8 hrs
+            else if (
+              (nightDifferentialFrom.isBefore(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
+              (nightDifferentialTo.isAfter(currSchedTimeOut) || nightDifferentialTo.isSame(currSchedTimeOut))
+            ) {
+              if (
+                (currTimeIn.isBefore(currSchedTimeIn) || currTimeIn.isSame(currSchedTimeIn)) &&
+                (currTimeOut.isAfter(currSchedTimeOut) || currTimeOut.isSame(currSchedTimeOut))
+              ) {
+                nightDifferentialHours = 8;
+              } else if (
+                (currTimeIn.isBefore(currSchedTimeIn) || currTimeIn.isSame(currSchedTimeIn)) &&
+                currTimeOut.isBefore(currSchedTimeOut)
+              ) {
+                nightDifferentialHours =
+                  Math.round((Math.round(currTimeOut.diff(currSchedTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
+              } else if (
+                currTimeIn.isAfter(currSchedTimeIn) &&
+                (currTimeOut.isAfter(currSchedTimeOut) || currTimeOut.isSame(currSchedTimeOut))
+              ) {
+                nightDifferentialHours =
+                  Math.round((Math.round(currSchedTimeOut.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
+              } else if (currTimeIn.isAfter(currSchedTimeIn) && currTimeOut.isBefore(currSchedTimeOut)) {
+                nightDifferentialHours =
+                  Math.round((Math.round(currTimeOut.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
+              }
+            }
+            console.log('---------------------------------');
+            // }
             totalNoOfHours += nightDifferentialHours;
             return {
               companyId,
