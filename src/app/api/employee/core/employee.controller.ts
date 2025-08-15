@@ -1,5 +1,17 @@
 import { TestNested } from './../data/employee.dto';
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthenticatedGuard } from '../../../../global/guards/authenticated.guard';
 import { CreateEmployeeDto, TestDTO, UpdateEmployeeDto } from '../data/employee.dto';
 import { EmployeeService } from './employee.service';
@@ -8,13 +20,14 @@ import { AuthenticatedUser } from '../../../../utils/types/auth-type';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { EmployeeDetailsFilter } from '../utils/employee-details-report.type';
 import { MsExceptionFilter } from '../../../../utils/filters/rpc-exception.filter';
+import { NatureOfAppointment } from '../utils/employee.type';
 
 @Controller('employees')
 export class EmployeeController {
   constructor(
     // inject employee service
     private readonly employeeService: EmployeeService,
-  ) { }
+  ) {}
 
   @Get('credentials')
   async getEmployeesForPopulation() {
@@ -25,6 +38,14 @@ export class EmployeeController {
   @Post()
   async createEmployee(@Body() employeeDto: CreateEmployeeDto) {
     return await this.employeeService.createEmployee(employeeDto);
+  }
+
+  @Get('ot-supervisor-employees/')
+  async getEmployeesUnderOtSupervisor(
+    @User() user: AuthenticatedUser,
+    @Query('nature_of_appointment') natureOfAppointment: NatureOfAppointment,
+  ) {
+    return await this.employeeService.getEmployeesUnderOtSupervisor(user._id, natureOfAppointment);
   }
 
   @UseGuards(AuthenticatedGuard)
@@ -73,8 +94,7 @@ export class EmployeeController {
   async findEmployeeByIdMS(@Payload() employeeId: string) {
     try {
       return await this.employeeService.getEmployeePersonalInfo(employeeId);
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
@@ -84,8 +104,7 @@ export class EmployeeController {
   async getEmployeePortalDetails(@Payload() employeeId: string) {
     try {
       return await this.employeeService.getEmployeeDetails(employeeId);
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
@@ -95,8 +114,7 @@ export class EmployeeController {
   async getEmail(@Payload() employeeId: string) {
     try {
       return await this.employeeService.getEmail(employeeId);
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
@@ -106,8 +124,7 @@ export class EmployeeController {
   async getBirthDaysForTheCurrentMonth() {
     try {
       return await this.employeeService.getBirthDaysForTheCurrentMonth();
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
@@ -117,8 +134,7 @@ export class EmployeeController {
   async countPersonnelByAgeBracket() {
     try {
       return await this.employeeService.countPersonnelByAgeBracket();
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
@@ -128,8 +144,7 @@ export class EmployeeController {
   async findAllEmployeeGender(@Payload() employeeId: string) {
     try {
       return await this.employeeService.findAllEmployeeGender(employeeId);
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
@@ -142,8 +157,7 @@ export class EmployeeController {
   ) {
     try {
       return await this.employeeService.generateReportOnEmployeeDetails(employeeDetailsFilter);
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error);
     }
   }

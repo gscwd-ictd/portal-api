@@ -12,6 +12,7 @@ export type EmployeeBasicDetails = {
   employeeId: string;
   companyId: string;
   employeeFullName: string;
+  salary: number;
 };
 
 export enum NatureOfAppointment {

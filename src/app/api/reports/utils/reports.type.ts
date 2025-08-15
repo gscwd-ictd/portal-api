@@ -16,4 +16,5 @@ export type EmployeeDtrSchedEntry = {
   schedLunchIn: string;
   schedLunchOut: string;
   shift: string;
+  dtrRemarks: string;
 };
