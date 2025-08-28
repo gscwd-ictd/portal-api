@@ -4,7 +4,7 @@ import { PdsDTO } from '../data/pds.dto';
 import { PdsService } from './pds.service';
 import { MsExceptionFilter } from '../../../../utils/filters/rpc-exception.filter';
 
-@Controller('api/pds')
+@Controller('pds')
 export class PdsController {
   constructor(private readonly pdsService: PdsService) { }
 

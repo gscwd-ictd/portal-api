@@ -7,3 +7,14 @@ export type EmployeeDetailsFromHr = {
   overtimeImmediateSupervisorId: string;
   assignment: { positionTitle: string };
 };
+
+export type EmployeeBasicDetails = {
+  employeeId: string;
+  companyId: string;
+  employeeFullName: string;
+};
+
+export enum NatureOfAppointment {
+  CASUAL = 'casual',
+  PERMANENT = 'permanent',
+}

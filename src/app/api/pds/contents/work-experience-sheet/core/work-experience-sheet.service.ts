@@ -176,7 +176,7 @@ export class WorkExperienceSheetService {
       }),
     );
 
-    return result;
+    return result.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
     //console.log('asd ', basic[0].workExperienceId);
   }
 }

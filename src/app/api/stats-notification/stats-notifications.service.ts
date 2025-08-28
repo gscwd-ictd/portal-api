@@ -29,7 +29,7 @@ export class StatsNotificationsService {
 
     console.log('le position', positionTitle);
 
-    const pendingTrainingNominationCount =
+    /* const pendingTrainingNominationCount =
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
@@ -52,7 +52,7 @@ export class StatsNotificationsService {
       employeeDetails.assignment.positionTitle === 'General Manager A' ||
       employeeDetails.assignment.positionTitle === 'OIC-General Manager'
         ? (await this.trainingsService.pendingGmApprovalCount()).pendingApproval
-        : null;
+        : null; */
 
     const pendingDtrCorrectionsApprovals = await this.dtrCorrectionsService.getPendingDtrCorrections(user);
     const forHrdmApprovalLeaves = await this.leaveApplicationsService.getForHrdmApprovalCount(user);
@@ -81,6 +81,7 @@ export class StatsNotificationsService {
         ? await this.employeeService.getPendingApplicantEndorsementsCount(user._id)
         : null;
     const allPendingForManagersEms =
+      employeeDetails.salaryGradeLevel >= 16 ||
       positionTitle === 'Division Manager A' ||
       positionTitle === 'Department Manager A' ||
       positionTitle === 'Assistant General Manager' ||
@@ -97,13 +98,13 @@ export class StatsNotificationsService {
         ? await this.employeeService.getAppointingAuthoritySelectionCount()
         : null;
     return {
-      pendingTrainingNominationCount,
+      //pendingTrainingNominationCount,
       pendingDtrCorrectionsApprovals,
       forHrdmApprovalLeaves,
       //pendingOvertimeApprovals,
-      pendingPdcSecretariatApprovalCount,
-      pendingPdcChairmanApprovalCount,
-      pendingGmApprovalCount,
+      //pendingPdcSecretariatApprovalCount,
+      //pendingPdcChairmanApprovalCount,
+      //pendingGmApprovalCount,
       prfsForApprovalCount,
       pendingApplicantEndorsementsCount,
       ...allPendingForManagersEms,
