@@ -41,11 +41,8 @@ export class EmployeeController {
   }
 
   @Get('ot-supervisor-employees/')
-  async getEmployeesUnderOtSupervisor(
-    @User() user: AuthenticatedUser,
-    @Query('nature_of_appointment') natureOfAppointment: NatureOfAppointment,
-  ) {
-    return await this.employeeService.getEmployeesUnderOtSupervisor(user._id, natureOfAppointment);
+  async getEmployeesUnderOtSupervisor(@User() user: AuthenticatedUser) {
+    return await this.employeeService.getEmployeesUnderOtSupervisor(user._id);
   }
 
   @UseGuards(AuthenticatedGuard)

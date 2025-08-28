@@ -14,17 +14,9 @@ export class ReportsController {
     @User() user: AuthenticatedUser,
     @Param('year') year: string,
     @Param('month') month: string,
-    @Query('nature_of_appointment') natureOfAppointment: NatureOfAppointment,
     @Query('half') half: ReportHalf,
-    @Body() employees: EmployeeBasicDetails[],
+    @Body() employees: { employees: EmployeeBasicDetails[] },
   ) {
-    return await this.reportsService.generateNightDifferentialReport(
-      user,
-      natureOfAppointment,
-      half,
-      year,
-      month,
-      employees,
-    );
+    return await this.reportsService.generateNightDifferentialReport(user, half, year, month, employees);
   }
 }

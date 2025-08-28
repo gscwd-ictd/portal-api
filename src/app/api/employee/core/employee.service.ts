@@ -371,18 +371,14 @@ export class EmployeeService extends CrudHelper<Employee> {
     return personalDetails;
   }
 
-  async getEmployeesUnderOtSupervisor(
-    employeeId: string,
-    natureOfAppointment: NatureOfAppointment,
-  ): Promise<EmployeeBasicDetails[]> {
+  async getEmployeesUnderOtSupervisor(employeeId: string): Promise<EmployeeBasicDetails[]> {
     try {
       return await this.dataSource.query(
         `
               SELECT 
                   employeeId, 
                   companyId, 
-                  employeeFullName,
-                  ${process.env.HRMS_DB_NAME}get_salary_grade_amount(${process.env.HRMS_DB_NAME}get_salary_grade_id_by_position_id(${process.env.HRMS_DB_NAME}get_employee_position_id_or_oic(employeeId))) salary 
+                  employeeFullName
               FROM 
                 (
                   (SELECT emp._id employeeId, emp.company_id companyId, ${process.env.HRMS_DB_NAME}get_employee_fullname2(emp._id) employeeFullName
@@ -409,10 +405,9 @@ export class EmployeeService extends CrudHelper<Employee> {
                   )
               ) employees 
                 INNER JOIN ${process.env.HRMS_DB_NAME}plantilla_positions pp ON employees.employeeId = pp.employee_id_fk 
-              WHERE pp.nature_of_appointment = ? 
-              order by employees.employeeFullName;
+                ORDER BY employees.employeeFullName;
       `,
-        [employeeId, employeeId, employeeId, natureOfAppointment],
+        [employeeId, employeeId, employeeId],
       );
     } catch (error) {
       console.log(error);

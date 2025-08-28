@@ -13,13 +13,11 @@ export class ReportsService {
 
   async generateNightDifferentialReport(
     user: AuthenticatedUser,
-    natureOfAppointment: NatureOfAppointment,
     half: ReportHalf,
     year: string,
     month: string,
-    employees: EmployeeBasicDetails[],
+    employees: { employees: EmployeeBasicDetails[] },
   ) {
-    //const employees = await this.employeeService.getEmployeesUnderOtSupervisor(user._id, natureOfAppointment);
     const numOfDays = dayjs(year + '-' + month + '-01').daysInMonth();
     const days =
       half === ReportHalf.FIRST_HALF
@@ -30,16 +28,19 @@ export class ReportsService {
     let totalOfTotalHourlySalary = 0;
     let totalOfTotalNightDifferential = 0;
     const _month = ('0' + month.toString()).slice(-2);
+    const assignment = (
+      await this.dataSource.query(`SELECT ${process.env.HRMS_DB_NAME}get_employee_assignment_or_oic(?) assignment;`, [
+        user._id,
+      ])
+    )[0].assignment;
     const periodCovered =
       dayjs(year + '-' + month + '-1').format('MMMM') + ' ' + days[0] + '-' + days[days.length - 1] + ', ' + year;
     const nightDifferential = await Promise.all(
-      employees.map(async (employee) => {
-        const { companyId, employeeFullName, salary, employeeId } = employee;
-        const dailyRate = Math.round((salary / 22) * 100) / 100;
-        const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
+      employees.employees.map(async (employee) => {
+        const { companyId, employeeFullName, employeeId } = employee;
+
         const dtrEntries = await this.getDtrEntries(companyId, year, month, days, employeeId);
-        let totalNoOfHours = 0;
-        let totalHourlySalary = 0;
+
         const dtrEntriesDetails = await Promise.all(
           dtrEntries.map(async (dtrEntry) => {
             const {
@@ -57,6 +58,13 @@ export class ReportsService {
               timeOut,
               dtrRemarks,
             } = dtrEntry;
+            const salary = (
+              await this.dataSource.query(
+                `SELECT ${process.env.HRMS_DB_NAME}get_nosi_nosa_salary_grade_amount(?,?) salary;`,
+                [employeeId, dtrDate],
+              )
+            )[0].salary;
+
             const isHoliday = (
               await this.dataSource.query(`select employee_monitoring.is_holiday(?) isHoliday;`, [dtrDate])
             )[0].isHoliday;
@@ -75,16 +83,6 @@ export class ReportsService {
               const nightDifferentialFrom = dayjs(dtrDate + ' 18:00:00');
               const nightDifferentialTo = dayjs(dayjs(dtrDate).format('YYYY-MM-DD') + ' 06:00:00').add(1, 'day');
               //per day check the night differential
-
-              if (companyId === '2017-046' && dtrDate.toString() === '2025-03-25') {
-                console.log('shift: ', shift);
-                console.log('curr time in', currTimeIn.format('YYYY-MM-DD HH:mm'));
-                console.log('curr time out', currTimeOut.format('YYYY-MM-DD HH:mm'));
-                console.log('curr sched time in', currSchedTimeIn.format('YYYY-MM-DD HH:mm'));
-                console.log('curr sched time out', currSchedTimeOut.format('YYYY-MM-DD HH:mm'));
-                console.log('night differential from', nightDifferentialFrom.format('YYYY-MM-DD HH:mm'));
-                console.log('night differential to', nightDifferentialTo.format('YYYY-MM-DD HH:mm'));
-              }
               if (
                 (nightDifferentialFrom.isAfter(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
                 nightDifferentialTo.isAfter(currSchedTimeOut) &&
@@ -193,12 +191,12 @@ export class ReportsService {
                 }
               }
             }
-            totalNoOfHours += nightDifferentialHours;
 
             return {
               companyId,
               dtrDate,
               dtrId,
+              salary,
               lunchIn,
               lunchOut,
               schedLunchIn,
@@ -221,30 +219,88 @@ export class ReportsService {
              - If the working hour falls on the Night Differential range but within worksuspension hours, 
                it will be considered an overtime
         */
-        totalHourlySalary = totalNoOfHours * hourlyRate;
-
-        const totalNightDifferential = Math.round(totalHourlySalary * 0.2 * 100) / 100;
-
-        totalOfTotalHourlySalary += Number.isNaN(totalHourlySalary) ? 0 : totalHourlySalary;
-        totalOfTotalNightDifferential += Number.isNaN(totalNightDifferential) ? 0 : totalNightDifferential;
 
         return {
           companyId,
           employeeFullName,
           dtrEntriesDetails,
-          hourlyRate,
-          dailyRate,
-          totalNoOfHours,
-          totalHourlySalary,
-          totalNightDifferential,
         };
       }),
     );
 
-    console.log(totalOfTotalHourlySalary, totalOfTotalNightDifferential);
+    const nightDifferentialDetails = nightDifferential.flatMap((employee) => {
+      return Object.values(
+        employee.dtrEntriesDetails.reduce((acc, entry) => {
+          if (!acc[entry.salary]) {
+            acc[entry.salary] = {
+              companyId: employee.companyId,
+              employeeFullName: employee.employeeFullName,
+              dtrEntriesDetails: [],
+            };
+          }
+          acc[entry.salary].dtrEntriesDetails.push(entry);
+          return acc;
+        }, {}),
+      );
+    });
+
+    const nightDifferentialDetailsWithComputation = nightDifferentialDetails.map((nightDiff: any) => {
+      const { companyId, employeeFullName, dtrEntriesDetails } = nightDiff;
+
+      let totalNoOfHours = 0;
+      let totalHourlySalary = 0;
+      const salary = dtrEntriesDetails[0].salary;
+      const dailyRate = Math.round((salary / 22) * 100) / 100;
+      const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
+      dtrEntriesDetails.map((dtrEntry) => {
+        const { nightDifferentialHours } = dtrEntry;
+        totalNoOfHours += nightDifferentialHours;
+      });
+      totalHourlySalary = totalNoOfHours * hourlyRate;
+
+      const totalNightDifferential = Math.round(totalHourlySalary * 0.2 * 100) / 100;
+
+      totalOfTotalHourlySalary += Number.isNaN(totalHourlySalary) ? 0 : totalHourlySalary;
+      totalOfTotalNightDifferential += Number.isNaN(totalNightDifferential) ? 0 : totalNightDifferential;
+
+      return {
+        companyId,
+        employeeFullName,
+        dtrEntriesDetails,
+        dailyRate,
+        hourlyRate,
+        totalNoOfHours,
+        totalNightDifferential,
+      };
+    });
+
+    const signatories = (
+      await this.dataSource.query(
+        `
+            SELECT
+                emp._id preparedById,
+                ${process.env.HRMS_DB_NAME}get_employee_fullname2(emp._id) preparedByName,
+                ${process.env.HRMS_DB_NAME}get_employee_position_or_oic(emp._id) preparedByPosition,
+                ${process.env.HRMS_DB_NAME}get_employee_signature(emp._id) preparedBySignature,
+                ${process.env.HRMS_DB_NAME}get_employee_supervisor(?) checkedById,
+                ${process.env.HRMS_DB_NAME}get_employee_fullname2(${process.env.HRMS_DB_NAME}get_employee_supervisor(?)) checkedByName,
+                ${process.env.HRMS_DB_NAME}get_employee_position_or_oic(${process.env.HRMS_DB_NAME}get_employee_supervisor(?)) checkedByPosition,
+                ${process.env.HRMS_DB_NAME}get_employee_signature(${process.env.HRMS_DB_NAME}get_employee_supervisor(?)) checkedBySignature,
+                ${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?)) approvedById,
+                ${process.env.HRMS_DB_NAME}get_employee_fullname2(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedByName,
+                ${process.env.HRMS_DB_NAME}get_employee_position_or_oic(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedByPosition,
+                ${process.env.HRMS_DB_NAME}get_employee_signature(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedBySignature
+            FROM ${process.env.HRMS_DB_NAME}employees emp WHERE emp._id=?;
+        
+          `,
+        [user._id, user._id, user._id, user._id, user._id, user._id, user._id, user._id, user._id],
+      )
+    )[0];
+
     return {
       periodCovered,
-      nightDifferential,
+      assignment,
+      nightDifferentialDetailsWithComputation,
       totalOfTotalHourlySalary: (Math.round(totalOfTotalHourlySalary * 100) / 100).toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -253,6 +309,7 @@ export class ReportsService {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
+      signatories,
     };
   }
 
