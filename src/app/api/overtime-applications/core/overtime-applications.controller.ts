@@ -44,7 +44,7 @@ export class OvertimeApplicationsController {
   ) {
     try {
       return await this.overtimeApplicationService.updateOvertimeDetails(updateOvertimeApplicationDto, user);
-    } catch ({ error }) {
+    } catch ( error ) {
       throw new HttpException(error.message, error.code);
     }
   }
