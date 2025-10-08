@@ -11,6 +11,7 @@ import { CreateEmployeeDto } from '../data/employee.dto';
 import { PendingUser } from '../../pending-user/data/pending-user.entity';
 import { AgeBracketView } from '../data/employee-age.view';
 import { EmployeeDetailsFilter, EmployeeDetailsReport } from '../utils/employee-details-report.type';
+import { EmployeeBasicDetails, NatureOfAppointment } from '../utils/employee.type';
 
 @Injectable()
 export class EmployeeService extends CrudHelper<Employee> {
@@ -267,6 +268,7 @@ export class EmployeeService extends CrudHelper<Employee> {
         .where('user_id_fk = :employeeId', { employeeId })
         .getRawOne();
     } catch (error) {
+      console.log('asd');
       Logger.error(error);
       throw new HttpException(error.message, error.status);
     }
@@ -296,7 +298,7 @@ export class EmployeeService extends CrudHelper<Employee> {
         const salaryGrade = salaryGradeDetails.salaryGrade;
         const salaryGradeAmount =
           employeeDetailsFilter.natureOfAppointment === 'casual' ||
-            employeeDetailsFilter.natureOfAppointment === 'permanent'
+          employeeDetailsFilter.natureOfAppointment === 'permanent'
             ? salaryGradeDetails.salaryGradeAmount
             : salaryGradeDetails.dailyRate;
 
@@ -340,32 +342,76 @@ export class EmployeeService extends CrudHelper<Employee> {
         const result =
           portalPersonalDetails.length > 0
             ? {
-              ...personalDetails,
-              ...assignment,
-              positionTitle,
-              natureOfAppointment: employee.employmentDetails.natureOfAppointment,
-              ...portalPersonalDetails[0],
-              ...pdsBasicInfo[0],
-              salaryGrade,
-              salaryGradeAmount,
-            }
+                ...personalDetails,
+                ...assignment,
+                positionTitle,
+                natureOfAppointment: employee.employmentDetails.natureOfAppointment,
+                ...portalPersonalDetails[0],
+                ...pdsBasicInfo[0],
+                salaryGrade,
+                salaryGradeAmount,
+              }
             : {
-              ...personalDetails,
-              ...assignment,
-              positionTitle,
-              natureOfAppointment: employee.employmentDetails.natureOfAppointment,
-              sex: null,
-              birthdate: null,
-              ...pdsBasicInfo[0],
-              salaryGrade,
-              salaryGradeAmount,
-            };
+                ...personalDetails,
+                ...assignment,
+                positionTitle,
+                natureOfAppointment: employee.employmentDetails.natureOfAppointment,
+                sex: null,
+                birthdate: null,
+                ...pdsBasicInfo[0],
+                salaryGrade,
+                salaryGradeAmount,
+              };
 
         return await this.personalDetailsFilterColumns(employeeDetailsFilter, result);
       }),
     );
 
     return personalDetails;
+  }
+
+  async getEmployeesUnderOtSupervisor(employeeId: string): Promise<EmployeeBasicDetails[]> {
+    try {
+      return await this.dataSource.query(
+        `
+              SELECT 
+                  employeeId, 
+                  companyId, 
+                  employeeFullName
+              FROM 
+                (
+                  (SELECT emp._id employeeId, emp.company_id companyId, ${process.env.HRMS_DB_NAME}get_employee_fullname2(emp._id) employeeFullName
+                    FROM ${process.env.HRMS_DB_NAME}employees emp 
+                      INNER JOIN ${process.env.HRMS_DB_NAME}employee_temporary_assignment eta ON eta.employee_id_fk = emp._id 
+                    WHERE (now() >= eta.date_from) AND eta.organization_id_fk IN (
+                    SELECT ois.org_id_fk FROM employee_monitoring.overtime_immediate_supervisor ois WHERE ois.employee_id_fk = ?
+                  ))
+                  UNION
+                  (SELECT 
+                    emp.employee_id employeeId, 
+                    emp.company_id companyId, 
+                    emp.name employeeFullName 
+                  FROM 
+                    ${process.env.HRMS_DB_NAME}all_employees_view emp 
+                  WHERE emp.assignmentId IN (
+                    SELECT ois.org_id_fk FROM employee_monitoring.overtime_immediate_supervisor ois 
+                      WHERE ois.employee_id_fk = ?
+                  ) AND emp.employee_id NOT IN (
+                    SELECT eta.employee_id_fk FROM ${process.env.HRMS_DB_NAME}employee_temporary_assignment eta 
+                      WHERE eta.organization_id_fk <> ${process.env.HRMS_DB_NAME}get_employee_assignment_id_or_oic_id(?)
+                    AND (now() >= eta.date_from )
+                  )
+                  )
+              ) employees 
+                INNER JOIN ${process.env.HRMS_DB_NAME}plantilla_positions pp ON employees.employeeId = pp.employee_id_fk 
+                ORDER BY employees.employeeFullName;
+      `,
+        [employeeId, employeeId, employeeId],
+      );
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
 
   private async personalDetailsFilterColumns(

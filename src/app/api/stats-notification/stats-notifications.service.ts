@@ -93,7 +93,7 @@ export class StatsNotificationsService {
         ? await this.employeeService.getAppointingAuthoritySelectionCount()
         : null;
     return {
-      pendingTrainingNominationCount,
+      //pendingTrainingNominationCount,
       pendingDtrCorrectionsApprovals,
       forHrdmApprovalLeaves,
       pendingOvertimeApprovals,

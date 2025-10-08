@@ -7,6 +7,7 @@ export class EmployeeDetailsMicroservice implements ClientsModuleOptionsFactory 
       options: {
         host: process.env.MS_HRMS_HOST,
         port: parseInt(process.env.MS_HRMS_PORT),
+        password: process.env.MS_HRMS_PASSWORD,
         retryAttempts: 5,
         retryDelay: 3000,
       },
@@ -36,6 +37,7 @@ export class RedisConfigForEmployeeMonitoring implements ClientsModuleOptionsFac
       options: {
         host: process.env.EMP_MONITORING_MS_HOST,
         port: parseInt(process.env.EMP_MONITORING_MS_PORT),
+        password: process.env.EMP_MONITORING_MS_PASSWORD,
         retryAttempts: 5,
         retryDelay: 3000,
         //url: `redis://${process.env.EMP_MONITORING_MS_HOST}:${process.env.EMP_MONITORING_MS_PORT}`,

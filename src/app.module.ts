@@ -18,6 +18,7 @@ import { PassSlipsModule } from './app/api/pass-slips/pass-slips.module';
 import { EventAnnouncementsModule } from './app/api/event-announcements/core/event-announcements.module';
 import { LeaveApplicationsModule } from './app/api/leave-applications/core/leave-applications.module';
 import { StatsNotificationModules } from './app/api/stats-notification/stats-notifications.module';
+import { ReportsModule } from './app/api/reports/core/reports.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { StatsNotificationModules } from './app/api/stats-notification/stats-not
     EventAnnouncementsModule,
     LeaveApplicationsModule,
     StatsNotificationModules,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],

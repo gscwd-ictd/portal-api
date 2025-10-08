@@ -174,7 +174,8 @@ export class WorkExperienceSheetService {
         return { ...rest, workExperienceId, ...workExperience, accomplishments, duties };
       }),
     );
-     return result.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
+
+    return result.sort((a, b) => new Date(b.from).getTime() - new Date(a.from).getTime());
     //console.log('asd ', basic[0].workExperienceId);
   }
 }

@@ -57,14 +57,14 @@ export class ChildrenService extends PdsCrudHelper<Child> {
       ]);
 
       if (deleteResult.affected > 0) return children;
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async deleteChild(_id: string) {
     try {
       const deleteResult = await this.deleteRecord(_id);
       if (deleteResult.affected > 0) return { deletedChildId: _id };
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async addChildren(employeeId: string, childrenDTO: ChildrenDTO) {
