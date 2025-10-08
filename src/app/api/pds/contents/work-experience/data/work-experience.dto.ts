@@ -5,10 +5,10 @@ export class WorkExperienceDTO {
   employeeId: string;
   positionTitle: string;
   companyName: string;
-  monthlySalary: number;
+  monthlySalary?: number;
   appointmentStatus: AppointmentStatus;
   isGovernmentService: boolean;
-  salaryGrade: string;
+  salaryGrade?: string;
   from: Date;
   to: Date;
   isEdited?: boolean;
