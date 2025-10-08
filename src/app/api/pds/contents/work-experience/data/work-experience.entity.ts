@@ -18,7 +18,7 @@ export class WorkExperience extends DatabaseEntity implements IPdsEntity {
   @Column({ name: 'company_name' })
   companyName: string;
 
-  @Column({ name: 'monthly_salary' })
+  @Column({ name: 'monthly_salary', nullable: true, default: null })
   monthlySalary: number;
 
   @Column({ name: 'appointment_status', type: 'enum', enum: AppointmentStatus })
@@ -27,13 +27,13 @@ export class WorkExperience extends DatabaseEntity implements IPdsEntity {
   @Column({ name: 'is_government_service', type: 'boolean' })
   isGovernmentService: boolean;
 
-  @Column({ name: 'salary_grade', nullable: true })
+  @Column({ name: 'salary_grade', nullable: true, default: null })
   salaryGrade: string;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date', nullable: true, default: null })
   from: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date', nullable: true, default: null })
   to: Date;
 
   @Column({ name: 'is_wd', type: 'boolean', default: false })
