@@ -44,4 +44,12 @@ export class CrudHelper<T> {
       throw new HttpException('Failed to delete record', HttpStatus.BAD_REQUEST);
     }
   }
+
+  async softDeleteRecord(recordId: string): Promise<DeleteResult> {
+    try {
+      return await this.repository.softDelete(recordId);
+    } catch (error) {
+      throw new HttpException('Failed to delete record', HttpStatus.BAD_REQUEST);
+    }
+  }
 }
