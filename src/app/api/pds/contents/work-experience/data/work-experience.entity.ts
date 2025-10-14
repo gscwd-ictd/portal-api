@@ -1,10 +1,13 @@
 import { DatabaseEntity, IPdsEntity } from '../../../../../../utils/database/entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AppointmentStatus } from '../../../misc/pds.enum';
 import { User } from '../../../../user/data/user.entity';
 
 @Entity('pds_work_experience')
 export class WorkExperience extends DatabaseEntity implements IPdsEntity {
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: Date;
+
   @PrimaryGeneratedColumn('uuid', { name: 'work_experience_id' })
   _id: string;
 

@@ -34,7 +34,7 @@ export class WorkExperienceService extends PdsCrudHelper<WorkExperience> {
       const deleteWorkExperience = await Promise.all(
         workExperienceDTO.delete.map(async (workExperience) => {
           const { _id, ...rest } = workExperience;
-          const deleteResult = await this.deleteRecord(_id);
+          const deleteResult = await this.softDeleteRecord(_id);
           if (deleteResult.affected > 0) return workExperience;
         }),
       );
@@ -52,7 +52,7 @@ export class WorkExperienceService extends PdsCrudHelper<WorkExperience> {
           DATE_FORMAT(\`from\`,'%Y-%m-%d') \'from\',
           DATE_FORMAT(\`to\`,'%Y-%m-%d') \'to\'
         FROM pds_work_experience 
-        WHERE user_id_fk=? 
+        WHERE user_id_fk=? AND deleted_at IS NULL
         ORDER BY \`from\` DESC
       `,
         [employeeId],
@@ -78,7 +78,7 @@ export class WorkExperienceService extends PdsCrudHelper<WorkExperience> {
           DATE_FORMAT(\`from\`,'%Y-%m-%d') \'from\',
           DATE_FORMAT(\`to\`,'%Y-%m-%d') \'to\'
         FROM pds_work_experience 
-        WHERE user_id_fk=? AND is_wd = true 
+        WHERE user_id_fk=? AND is_wd = true AND deleted_at IS NULL
         ORDER BY \`from\` DESC
       `,
         [employeeId],
@@ -103,7 +103,7 @@ export class WorkExperienceService extends PdsCrudHelper<WorkExperience> {
           DATE_FORMAT(\`from\`,'%Y-%m-%d') \'from\',
           DATE_FORMAT(\`to\`,'%Y-%m-%d') \'to\'
         FROM pds_work_experience 
-        WHERE user_id_fk=? 
+        WHERE user_id_fk=? AND deleted_at IS NULL
         ORDER BY \`from\` DESC 
       `,
         [employeeId],
