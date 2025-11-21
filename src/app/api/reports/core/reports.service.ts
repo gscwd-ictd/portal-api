@@ -71,7 +71,13 @@ export class ReportsService {
             console.log('remarks', dtrRemarks, 'holiday', isHoliday);
             let timeOutDate = dayjs(dtrDate);
             let nightDifferentialHours = 0;
-            if (!dtrRemarks.includes('Rest Day') && !isHoliday) {
+            if (
+              !dtrRemarks.includes('Rest Day') &&
+              !dtrRemarks.includes('Leave') &&
+              !isHoliday &&
+              timeIn !== null &&
+              timeOut !== null
+            ) {
               if (shift === 'night') timeOutDate = dayjs(dtrDate).add(1, 'days');
 
               const currTimeOut = dayjs(
