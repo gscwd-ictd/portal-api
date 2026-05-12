@@ -10,7 +10,7 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
       logging: false,
       retryAttempts: 10,
       retryDelay: 3000,

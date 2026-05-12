@@ -7,7 +7,7 @@ import { MsExceptionFilter } from '../../../../../../utils/filters/rpc-exception
 
 @Controller('pds/work-experience-sheet/')
 export class WorkExperienceSheetController {
-  constructor(private readonly workExperienceSheetService: WorkExperienceSheetService) { }
+  constructor(private readonly workExperienceSheetService: WorkExperienceSheetService) {}
   @Post(':posting_applicant_id')
   async addWorkExperienceSheet(
     @Param('posting_applicant_id') postingApplicantId: string,
@@ -26,8 +26,7 @@ export class WorkExperienceSheetController {
         payload.postingApplicantId,
         payload.workExperienceSheetAddDTO,
       );
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }

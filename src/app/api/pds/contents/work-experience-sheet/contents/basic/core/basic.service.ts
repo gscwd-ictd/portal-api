@@ -15,9 +15,11 @@ export class WorkExperienceSheetBasicService extends CrudHelper<WorkExperienceSh
 
   async getWorkExperienceSheetBasicByPostingApplicantId(postingApplicantId: string) {
     try {
+      console.log('asd asd asd');
       return await this.workExperienceSheetBasicRepository.find({
         loadRelationIds: true,
         where: { postingApplicantId },
+        //order: { workExperienceId: { from: 'ASC' } },
       });
     } catch (error) {
       throw new HttpException(error.message, error.status);

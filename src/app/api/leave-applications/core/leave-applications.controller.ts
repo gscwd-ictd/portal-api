@@ -15,6 +15,7 @@ export class LeaveApplicationController {
     @Body() updateHrmoLeaveApprovalStatus: UpdateLeaveApplicationHrdmStatusDto,
     @User() user: AuthenticatedUser,
   ) {
+    console.log('manager approval ---------------');
     return await this.leaveApplicationService.updateHrdmLeaveApprovalStatus(updateHrmoLeaveApprovalStatus, user);
   }
 }
