@@ -6,7 +6,7 @@ import { MsExceptionFilter } from '../../../../utils/filters/rpc-exception.filte
 
 @Controller('pds')
 export class PdsController {
-  constructor(private readonly pdsService: PdsService) { }
+  constructor(private readonly pdsService: PdsService) {}
 
   @Get(':employee_id')
   async getPds(@Param('employee_id') employeeId: string) {
@@ -40,8 +40,7 @@ export class PdsController {
       const result = await this.pdsService.getLspPdsDetails(employeeId);
       //console.log(result);
       return result;
-    }
-    catch (error) {
+    } catch (error) {
       throw new RpcException(error.message);
     }
   }
