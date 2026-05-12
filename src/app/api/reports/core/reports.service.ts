@@ -256,15 +256,20 @@ export class ReportsService {
       let totalNoOfHours = 0;
       let totalHourlySalary = 0;
       const salary = dtrEntriesDetails[0].salary;
-      const dailyRate = Math.round((salary / 22) * 100) / 100;
-      const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
+      // const dailyRate = Math.round((salary / 22) * 100) / 100;
+      // const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
+
+      const dailyRate = salary / 22;
+      const hourlyRate = dailyRate / 8;
+
       dtrEntriesDetails.map((dtrEntry) => {
         const { nightDifferentialHours } = dtrEntry;
         totalNoOfHours += nightDifferentialHours;
       });
       totalHourlySalary = totalNoOfHours * hourlyRate;
 
-      const totalNightDifferential = Math.round(totalHourlySalary * 0.2 * 100) / 100;
+      //const totalNightDifferential = Math.round(totalHourlySalary * 0.2 * 100) / 100;
+      const totalNightDifferential = totalHourlySalary * 0.2;
 
       totalOfTotalHourlySalary += Number.isNaN(totalHourlySalary) ? 0 : totalHourlySalary;
       totalOfTotalNightDifferential += Number.isNaN(totalNightDifferential) ? 0 : totalNightDifferential;
@@ -273,10 +278,10 @@ export class ReportsService {
         companyId,
         employeeFullName,
         dtrEntriesDetails,
-        dailyRate,
-        hourlyRate,
+        dailyRate: Math.round(dailyRate * 100) / 100,
+        hourlyRate: Math.round(hourlyRate * 100) / 100,
         totalNoOfHours,
-        totalNightDifferential,
+        totalNightDifferential: Math.round(totalNightDifferential * 100) / 100,
       };
     });
 
@@ -297,7 +302,7 @@ export class ReportsService {
                 ${process.env.HRMS_DB_NAME}get_employee_position_or_oic(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedByPosition,
                 ${process.env.HRMS_DB_NAME}get_employee_signature(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedBySignature
             FROM ${process.env.HRMS_DB_NAME}employees emp WHERE emp._id=?;
-        
+
           `,
         [user._id, user._id, user._id, user._id, user._id, user._id, user._id, user._id, user._id],
       )
