@@ -472,7 +472,7 @@ export class PdsService {
       });
       return result;
     } catch (error) {
-      //console.log('shit');
+      console.log(error.message);
       throw new HttpException(error.message, 500);
     }
   }
