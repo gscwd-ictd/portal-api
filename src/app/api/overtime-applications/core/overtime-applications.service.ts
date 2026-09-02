@@ -1,4 +1,4 @@
-import { Body, Inject, Injectable } from '@nestjs/common';
+import { Body, HttpException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { AuthenticatedUser } from '../../../../utils/types/auth-type';
@@ -41,6 +41,14 @@ export class OvertimeApplicationService {
     const result = await lastValueFrom(
       this.client.send('update_overtime_details', { ...updateOvertimeApplicationDto, employeeId: user._id }),
     );
+    if (Number(result.status) === 403) {
+      throw new HttpException(
+        {
+          message: result.message,
+        },
+        403,
+      );
+    }
     return result;
   }
 }
