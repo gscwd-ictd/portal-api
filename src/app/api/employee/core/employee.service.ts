@@ -303,7 +303,7 @@ export class EmployeeService extends CrudHelper<Employee> {
             : salaryGradeDetails.dailyRate;
 
         const portalPersonalDetails = await this.employeeRepository.query(
-          `SELECT company_id companyId,sex, DATE_FORMAT(birth_date,'%M %d, %Y') birthDate FROM employees WHERE user_id_fk=?`,
+          `SELECT company_id companyId,sex, DATE_FORMAT(birth_date,'%M %d, %Y') birthDate,timestampdiff(YEAR, birth_date, now()) age FROM employees WHERE user_id_fk=?`,
           [employee.employmentDetails.employeeId],
         );
 

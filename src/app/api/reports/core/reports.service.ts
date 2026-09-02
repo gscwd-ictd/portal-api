@@ -33,8 +33,10 @@ export class ReportsService {
         user._id,
       ])
     )[0].assignment;
+
     const periodCovered =
       dayjs(year + '-' + month + '-1').format('MMMM') + ' ' + days[0] + '-' + days[days.length - 1] + ', ' + year;
+
     const nightDifferential = await Promise.all(
       employees.employees.map(async (employee) => {
         const { companyId, employeeFullName, employeeId } = employee;
@@ -65,16 +67,18 @@ export class ReportsService {
               )
             )[0].salary;
 
-            const isHoliday = (
-              await this.dataSource.query(`select employee_monitoring.is_holiday(?) isHoliday;`, [dtrDate])
-            )[0].isHoliday;
-            console.log('remarks', dtrRemarks, 'holiday', isHoliday);
+            // const isHoliday = (
+            //   await this.dataSource.query(`select employee_monitoring.is_holiday(?) isHoliday;`, [dtrDate])
+            // )[0].isHoliday;
+
+            // console.log('remarks', dtrRemarks, 'holiday', isHoliday);
+
             let timeOutDate = dayjs(dtrDate);
             let nightDifferentialHours = 0;
             if (
               !dtrRemarks.includes('Rest Day') &&
               !dtrRemarks.includes('Leave') &&
-              !isHoliday &&
+              // !isHoliday &&
               timeIn !== null &&
               timeOut !== null
             ) {
@@ -88,6 +92,7 @@ export class ReportsService {
               const currSchedTimeOut = dayjs(timeOutDate.format('YYYY-MM-DD') + ' ' + schedTimeOut);
               const nightDifferentialFrom = dayjs(dtrDate + ' 18:00:00');
               const nightDifferentialTo = dayjs(dayjs(dtrDate).format('YYYY-MM-DD') + ' 06:00:00').add(1, 'day');
+
               //per day check the night differential
               if (
                 (nightDifferentialFrom.isAfter(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
@@ -222,8 +227,6 @@ export class ReportsService {
             Notes on:
              - Make sure that their schedule fall on the 6pm to 6am (partially/wholly)
              - Make sure that it is in regular working hours
-             - If the working hour falls on the Night Differential range but within worksuspension hours, 
-               it will be considered an overtime
         */
 
         return {
@@ -256,15 +259,20 @@ export class ReportsService {
       let totalNoOfHours = 0;
       let totalHourlySalary = 0;
       const salary = dtrEntriesDetails[0].salary;
-      const dailyRate = Math.round((salary / 22) * 100) / 100;
-      const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
+      // const dailyRate = Math.round((salary / 22) * 100) / 100;
+      // const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
+
+      const dailyRate = salary / 22;
+      const hourlyRate = dailyRate / 8;
+
       dtrEntriesDetails.map((dtrEntry) => {
         const { nightDifferentialHours } = dtrEntry;
         totalNoOfHours += nightDifferentialHours;
       });
       totalHourlySalary = totalNoOfHours * hourlyRate;
 
-      const totalNightDifferential = Math.round(totalHourlySalary * 0.2 * 100) / 100;
+      //const totalNightDifferential = Math.round(totalHourlySalary * 0.2 * 100) / 100;
+      const totalNightDifferential = totalHourlySalary * 0.2;
 
       totalOfTotalHourlySalary += Number.isNaN(totalHourlySalary) ? 0 : totalHourlySalary;
       totalOfTotalNightDifferential += Number.isNaN(totalNightDifferential) ? 0 : totalNightDifferential;
@@ -273,10 +281,10 @@ export class ReportsService {
         companyId,
         employeeFullName,
         dtrEntriesDetails,
-        dailyRate,
-        hourlyRate,
+        dailyRate: Math.round(dailyRate * 100) / 100,
+        hourlyRate: Math.round(hourlyRate * 100) / 100,
         totalNoOfHours,
-        totalNightDifferential,
+        totalNightDifferential: Math.round(totalNightDifferential * 100) / 100,
       };
     });
 
@@ -297,7 +305,7 @@ export class ReportsService {
                 ${process.env.HRMS_DB_NAME}get_employee_position_or_oic(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedByPosition,
                 ${process.env.HRMS_DB_NAME}get_employee_signature(${process.env.HRMS_DB_NAME}get_employee_supervisor(${process.env.HRMS_DB_NAME}get_employee_supervisor(?))) approvedBySignature
             FROM ${process.env.HRMS_DB_NAME}employees emp WHERE emp._id=?;
-        
+
           `,
         [user._id, user._id, user._id, user._id, user._id, user._id, user._id, user._id, user._id],
       )

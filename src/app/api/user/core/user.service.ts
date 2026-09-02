@@ -113,8 +113,9 @@ export class UserService extends CrudHelper<User> {
           shouldOtpOnLogin: await this.shouldOtpOnLogin(employeeDetails),
         };
       }
-      throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
+      //throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
     } catch (error) {
+      console.log(error);
       throw new HttpException('Invalid Credentials', HttpStatus.FORBIDDEN);
     }
   }

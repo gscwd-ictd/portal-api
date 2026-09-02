@@ -26,7 +26,6 @@ export class LeaveApplicationsService {
         hrdmApprovalDate: new Date(),
       }),
     );
-
     return updateHrdmLeaveApprovalStatus;
   }
 }
