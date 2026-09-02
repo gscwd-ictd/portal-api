@@ -33,10 +33,8 @@ export class ReportsService {
         user._id,
       ])
     )[0].assignment;
-
     const periodCovered =
       dayjs(year + '-' + month + '-1').format('MMMM') + ' ' + days[0] + '-' + days[days.length - 1] + ', ' + year;
-
     const nightDifferential = await Promise.all(
       employees.employees.map(async (employee) => {
         const { companyId, employeeFullName, employeeId } = employee;
@@ -67,18 +65,16 @@ export class ReportsService {
               )
             )[0].salary;
 
-            // const isHoliday = (
-            //   await this.dataSource.query(`select employee_monitoring.is_holiday(?) isHoliday;`, [dtrDate])
-            // )[0].isHoliday;
-
-            // console.log('remarks', dtrRemarks, 'holiday', isHoliday);
-
+            const isHoliday = (
+              await this.dataSource.query(`select employee_monitoring.is_holiday(?) isHoliday;`, [dtrDate])
+            )[0].isHoliday;
+            console.log('remarks', dtrRemarks, 'holiday', isHoliday);
             let timeOutDate = dayjs(dtrDate);
             let nightDifferentialHours = 0;
             if (
               !dtrRemarks.includes('Rest Day') &&
               !dtrRemarks.includes('Leave') &&
-              // !isHoliday &&
+              !isHoliday &&
               timeIn !== null &&
               timeOut !== null
             ) {
@@ -92,7 +88,6 @@ export class ReportsService {
               const currSchedTimeOut = dayjs(timeOutDate.format('YYYY-MM-DD') + ' ' + schedTimeOut);
               const nightDifferentialFrom = dayjs(dtrDate + ' 18:00:00');
               const nightDifferentialTo = dayjs(dayjs(dtrDate).format('YYYY-MM-DD') + ' 06:00:00').add(1, 'day');
-
               //per day check the night differential
               if (
                 (nightDifferentialFrom.isAfter(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
@@ -227,6 +222,8 @@ export class ReportsService {
             Notes on:
              - Make sure that their schedule fall on the 6pm to 6am (partially/wholly)
              - Make sure that it is in regular working hours
+             - If the working hour falls on the Night Differential range but within worksuspension hours, 
+               it will be considered an overtime
         */
 
         return {
