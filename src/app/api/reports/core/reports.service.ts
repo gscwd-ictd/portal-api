@@ -6,6 +6,7 @@ import { EmployeeDtrSchedEntry, ReportHalf } from '../utils/reports.type';
 import { getDayRange1stHalf, getDayRange2ndHalf } from '../../../../utils/helpers/functions';
 import * as dayjs from 'dayjs';
 import { DataSource } from 'typeorm';
+import { computeNightDifferential } from '../utils/night-differential.util';
 
 @Injectable()
 export class ReportsService {
@@ -42,12 +43,34 @@ export class ReportsService {
         const { companyId, employeeFullName, employeeId } = employee;
 
         const dtrEntries = await this.getDtrEntries(companyId, year, month, days, employeeId);
+        const overtimesByDate = await this.getApprovedOvertimesByDate(employeeId, year, month, days);
+
+        // approved OT on dates without a DTR entry (e.g. rest day) still earns ND
+        const dtrDates = new Set(dtrEntries.map((e) => e.dtrDate as unknown as string));
+        for (const otDate of overtimesByDate.keys()) {
+          if (!dtrDates.has(otDate))
+            dtrEntries.push({
+              dtrId: null,
+              companyId,
+              dtrDate: otDate as unknown as Date,
+              timeIn: null,
+              lunchOut: null,
+              lunchIn: null,
+              timeOut: null,
+              schedTimeIn: null,
+              schedTimeOut: null,
+              schedLunchIn: null,
+              schedLunchOut: null,
+              shift: null,
+              dtrRemarks: 'Rest Day',
+            });
+        }
 
         const dtrEntriesDetails = await Promise.all(
           dtrEntries.map(async (dtrEntry) => {
             const {
               companyId,
-              dtrDate,
+              dtrDate: _dtrDate,
               dtrId,
               lunchIn,
               lunchOut,
@@ -60,6 +83,7 @@ export class ReportsService {
               timeOut,
               dtrRemarks,
             } = dtrEntry;
+            const dtrDate = _dtrDate as unknown as string;
             const salary = (
               await this.dataSource.query(
                 `SELECT ${process.env.HRMS_DB_NAME}get_nosi_nosa_salary_grade_amount(?,?) salary;`,
@@ -73,135 +97,19 @@ export class ReportsService {
 
             // console.log('remarks', dtrRemarks, 'holiday', isHoliday);
 
-            let timeOutDate = dayjs(dtrDate);
-            let nightDifferentialHours = 0;
-            if (
-              !dtrRemarks.includes('Rest Day') &&
-              !dtrRemarks.includes('Leave') &&
-              // !isHoliday &&
-              timeIn !== null &&
-              timeOut !== null
-            ) {
-              if (shift === 'night') timeOutDate = dayjs(dtrDate).add(1, 'days');
-
-              const currTimeOut = dayjs(
-                dayjs(timeOutDate.format('YYYY-MM-DD') + ' ' + timeOut).format('YYYY-MM-DD HH:mm:00'),
-              );
-              const currTimeIn = dayjs(dayjs(dtrDate + ' ' + timeIn).format('YYYY-MM-DD HH:mm:00'));
-              const currSchedTimeIn = dayjs(dtrDate + ' ' + schedTimeIn);
-              const currSchedTimeOut = dayjs(timeOutDate.format('YYYY-MM-DD') + ' ' + schedTimeOut);
-              const nightDifferentialFrom = dayjs(dtrDate + ' 18:00:00');
-              const nightDifferentialTo = dayjs(dayjs(dtrDate).format('YYYY-MM-DD') + ' 06:00:00').add(1, 'day');
-
-              //per day check the night differential
-              if (
-                (nightDifferentialFrom.isAfter(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
-                nightDifferentialTo.isAfter(currSchedTimeOut) &&
-                nightDifferentialFrom.isBefore(currSchedTimeOut)
-              ) {
-                // 01:00pm - 06:00pm - 10:00pm - 6:00 am
-                if (currTimeOut.isAfter(currSchedTimeOut)) {
-                  nightDifferentialHours =
-                    Math.round(
-                      (Math.round(currSchedTimeOut.diff(nightDifferentialFrom, 'minutes') * 100) / 100 / 60) * 100,
-                    ) / 100;
-                } else
-                  nightDifferentialHours =
-                    Math.round(
-                      (Math.round(currTimeOut.diff(nightDifferentialFrom, 'minutes') * 100) / 100 / 60) * 100,
-                    ) / 100;
-              } else if (
-                (nightDifferentialFrom.isAfter(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
-                nightDifferentialTo.isBefore(currSchedTimeOut) &&
-                nightDifferentialFrom.isBefore(currSchedTimeOut)
-              ) {
-                // 01:00pm - 06:00pm - 10:00pm - 6:00 am
-                nightDifferentialHours =
-                  Math.round(
-                    (Math.round(nightDifferentialTo.diff(nightDifferentialFrom, 'minutes') * 100) / 100 / 60) * 100,
-                  ) / 100;
-              } else if (
-                nightDifferentialFrom.isBefore(currSchedTimeIn) &&
-                nightDifferentialTo.isBefore(currSchedTimeOut)
-              ) {
-                //TODO: Add conditions if late or undertimed
-                //late
-                if (currSchedTimeIn.isBefore(currTimeIn)) {
-                  nightDifferentialHours =
-                    Math.round((Math.round(nightDifferentialTo.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) /
-                    100;
-                }
-                //on time
-                else if (
-                  (currSchedTimeIn.isAfter(currTimeIn) || currSchedTimeIn.isSame(currTimeIn)) &&
-                  (currSchedTimeOut.isBefore(currTimeOut) || currSchedTimeOut.isSame(currTimeOut))
-                ) {
-                  console.log(dtrDate, currSchedTimeOut.format('YYYY-MM-DD'), currTimeOut.format('YYYY-MM-DD'));
-                  nightDifferentialHours =
-                    Math.round(
-                      (Math.round(nightDifferentialTo.diff(currSchedTimeIn, 'minutes') * 100) / 100 / 60) * 100,
-                    ) / 100;
-                }
-                //undertime
-                else if (
-                  (currSchedTimeIn.isAfter(currTimeIn) || currSchedTimeIn.isSame(currTimeIn)) &&
-                  currSchedTimeOut.isAfter(currTimeOut)
-                ) {
-                  if (
-                    currTimeOut.isBefore(nightDifferentialTo) &&
-                    (currSchedTimeIn.isAfter(currTimeIn) || currSchedTimeIn.isSame(currTimeIn))
-                  ) {
-                    nightDifferentialHours =
-                      Math.round((Math.round(currTimeOut.diff(currSchedTimeIn, 'minutes') * 100) / 100 / 60) * 100) /
-                      100;
-                  } else
-                    nightDifferentialHours =
-                      Math.round((Math.round(nightDifferentialTo.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) /
-                      100;
-                }
-                //late and undertime
-                if (currSchedTimeIn.isBefore(currTimeIn) && currSchedTimeOut.isAfter(currTimeOut)) {
-                  //console.log('late na gani undertime pa gyud', dtrDate);
-                  if (currTimeOut.isAfter(nightDifferentialTo)) {
-                    console.log('here');
-                    nightDifferentialHours =
-                      Math.round((Math.round(nightDifferentialTo.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) /
-                      100;
-                  } else
-                    nightDifferentialHours =
-                      Math.round((Math.round(currTimeOut.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
-                }
-              }
-              //6pm - 08:00pm - 05:00am- 6:00am = 8 hrs
-              else if (
-                (nightDifferentialFrom.isBefore(currSchedTimeIn) || nightDifferentialFrom.isSame(currSchedTimeIn)) &&
-                (nightDifferentialTo.isAfter(currSchedTimeOut) || nightDifferentialTo.isSame(currSchedTimeOut))
-              ) {
-                if (
-                  (currTimeIn.isBefore(currSchedTimeIn) || currTimeIn.isSame(currSchedTimeIn)) &&
-                  (currTimeOut.isAfter(currSchedTimeOut) || currTimeOut.isSame(currSchedTimeOut))
-                ) {
-                  nightDifferentialHours =
-                    Math.round((Math.round(currSchedTimeOut.diff(currSchedTimeIn, 'minutes') * 100) / 100 / 60) * 100) /
-                    100;
-                } else if (
-                  (currTimeIn.isBefore(currSchedTimeIn) || currTimeIn.isSame(currSchedTimeIn)) &&
-                  currTimeOut.isBefore(currSchedTimeOut)
-                ) {
-                  nightDifferentialHours =
-                    Math.round((Math.round(currTimeOut.diff(currSchedTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
-                } else if (
-                  currTimeIn.isAfter(currSchedTimeIn) &&
-                  (currTimeOut.isAfter(currSchedTimeOut) || currTimeOut.isSame(currSchedTimeOut))
-                ) {
-                  nightDifferentialHours =
-                    Math.round((Math.round(currSchedTimeOut.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
-                } else if (currTimeIn.isAfter(currSchedTimeIn) && currTimeOut.isBefore(currSchedTimeOut)) {
-                  nightDifferentialHours =
-                    Math.round((Math.round(currTimeOut.diff(currTimeIn, 'minutes') * 100) / 100 / 60) * 100) / 100;
-                }
-              }
-            }
+            const remarks = dtrRemarks ?? '';
+            const nd = computeNightDifferential({
+              dtrDate,
+              schedTimeIn,
+              schedTimeOut,
+              timeIn,
+              timeOut,
+              // holidays and work suspension days earn ND for worked hours only
+              isRestDayOrLeave: remarks.includes('Rest Day') || remarks.includes('Leave'),
+              overtimes: overtimesByDate.get(dtrDate) ?? [],
+            });
+            const nightDifferentialHours = nd.totalNdHours;
+            const otNightDifferentialHours = Math.round((nd.otNdMinutes / 60) * 100) / 100;
 
             return {
               companyId,
@@ -218,6 +126,7 @@ export class ReportsService {
               timeIn,
               timeOut,
               nightDifferentialHours,
+              otNightDifferentialHours,
             };
           }),
         );
@@ -325,6 +234,36 @@ export class ReportsService {
       }),
       signatories,
     };
+  }
+
+  /** approved overtime (encoded time in/out) of an employee in the period, by planned date YYYY-MM-DD */
+  private async getApprovedOvertimesByDate(
+    employeeId: string,
+    year: string,
+    month: string,
+    dayRange: number[],
+  ): Promise<Map<string, { encodedTimeIn: string; encodedTimeOut: string }[]>> {
+    const map = new Map<string, { encodedTimeIn: string; encodedTimeOut: string }[]>();
+    try {
+      const rows: { plannedDate: string; encodedTimeIn: string; encodedTimeOut: string }[] =
+        await this.dataSource.query(
+          `SELECT DATE_FORMAT(oa.planned_date,'%Y-%m-%d') plannedDate,
+                DATE_FORMAT(oacc.encoded_time_in,'%Y-%m-%d %H:%i:%s') encodedTimeIn,
+                DATE_FORMAT(oacc.encoded_time_out,'%Y-%m-%d %H:%i:%s') encodedTimeOut
+           FROM employee_monitoring.overtime_application oa
+          INNER JOIN employee_monitoring.overtime_employee oe ON oe.overtime_application_id_fk = oa.overtime_application_id
+          INNER JOIN employee_monitoring.overtime_accomplishment oacc ON oacc.overtime_employee_id_fk = oe.overtime_employee_id
+          WHERE oe.employee_id_fk = ? AND YEAR(oa.planned_date) = ? AND MONTH(oa.planned_date) = ?
+            AND DATE_FORMAT(oa.planned_date,'%d') IN (?)
+            AND oa.status <> 'cancelled' AND oacc.status = 'approved'
+            AND oacc.encoded_time_in IS NOT NULL AND oacc.encoded_time_out IS NOT NULL;`,
+          [employeeId, year, month, dayRange.map((d) => ('0' + d).slice(-2))],
+        );
+      rows.forEach((r) => map.set(r.plannedDate, [...(map.get(r.plannedDate) ?? []), r]));
+    } catch (error) {
+      console.log(error);
+    }
+    return map;
   }
 
   private async getDtrEntries(
