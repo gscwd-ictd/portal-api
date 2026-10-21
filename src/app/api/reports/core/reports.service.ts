@@ -6,7 +6,7 @@ import { EmployeeDtrSchedEntry, ReportHalf } from '../utils/reports.type';
 import { getDayRange1stHalf, getDayRange2ndHalf } from '../../../../utils/helpers/functions';
 import * as dayjs from 'dayjs';
 import { DataSource } from 'typeorm';
-import { computeNightDifferential } from '../utils/night-differential.util';
+import { computeNightDifferential, resolveDailyRate } from '../utils/night-differential.util';
 
 @Injectable()
 export class ReportsService {
@@ -84,12 +84,16 @@ export class ReportsService {
               dtrRemarks,
             } = dtrEntry;
             const dtrDate = _dtrDate as unknown as string;
-            const salary = (
+            // permanent / casual: monthly salary grade amount; job order: NOSI/NOSA daily rate
+            const { salaryGradeAmount, nosiDailyRate } = (
               await this.dataSource.query(
-                `SELECT ${process.env.HRMS_DB_NAME}get_nosi_nosa_salary_grade_amount(?,?) salary;`,
-                [employeeId, dtrDate],
+                `SELECT ${process.env.HRMS_DB_NAME}get_nosi_nosa_salary_grade_amount(?,?) salaryGradeAmount,
+                        ${process.env.HRMS_DB_NAME}get_nosi_nosa_daily_rate(?,?) nosiDailyRate;`,
+                [employeeId, dtrDate, employeeId, dtrDate],
               )
-            )[0].salary;
+            )[0];
+            const dailyRate = resolveDailyRate(salaryGradeAmount, nosiDailyRate);
+            const salary = dailyRate;
 
             // const isHoliday = (
             //   await this.dataSource.query(`select employee_monitoring.is_holiday(?) isHoliday;`, [dtrDate])
@@ -167,11 +171,8 @@ export class ReportsService {
 
       let totalNoOfHours = 0;
       let totalHourlySalary = 0;
-      const salary = dtrEntriesDetails[0].salary;
-      // const dailyRate = Math.round((salary / 22) * 100) / 100;
-      // const hourlyRate = Math.round((dailyRate / 8) * 100) / 100;
-
-      const dailyRate = salary / 22;
+      // entries are grouped by daily rate (a rate change mid-period gives one line per rate)
+      const dailyRate = Number(dtrEntriesDetails[0].salary) || 0;
       const hourlyRate = dailyRate / 8;
 
       dtrEntriesDetails.map((dtrEntry) => {
