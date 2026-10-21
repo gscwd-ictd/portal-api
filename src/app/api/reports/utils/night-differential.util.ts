@@ -134,3 +134,16 @@ export function computeNightDifferential(input: NdInput): NdResult {
     totalNdHours: Math.round(((regularTotal + otNd) / 60) * 100) / 100,
   };
 }
+
+/**
+ * Daily rate for the ND computation. Permanent / casual: monthly salary grade amount / 22.
+ * Job order (no salary grade): the NOSI/NOSA daily rate. Missing both -> 0.
+ */
+export function resolveDailyRate(
+  salaryGradeAmount: number | string | null,
+  nosiDailyRate: number | string | null,
+): number {
+  const monthly = Number(salaryGradeAmount) || 0;
+  if (monthly > 0) return monthly / 22;
+  return Number(nosiDailyRate) || 0;
+}

@@ -1,4 +1,4 @@
-import { computeNightDifferential, NdInput } from './night-differential.util';
+import { computeNightDifferential, NdInput, resolveDailyRate } from './night-differential.util';
 
 const base: NdInput = {
   dtrDate: '2026-10-08',
@@ -108,5 +108,18 @@ describe('computeNightDifferential', () => {
       });
       expect(r.totalNdHours).toBe(2);
     });
+  });
+});
+
+describe('resolveDailyRate', () => {
+  it('permanent / casual: salary grade amount / 22', () => {
+    expect(resolveDailyRate('45694.00', null)).toBeCloseTo(2077, 0);
+  });
+  it('job order: NOSI/NOSA daily rate when there is no salary grade', () => {
+    expect(resolveDailyRate('0.00', '708.45')).toBe(708.45);
+    expect(resolveDailyRate(null, '708.45')).toBe(708.45);
+  });
+  it('neither -> 0', () => {
+    expect(resolveDailyRate(null, null)).toBe(0);
   });
 });
