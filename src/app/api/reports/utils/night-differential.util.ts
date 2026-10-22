@@ -7,9 +7,9 @@
  *  - Incomplete or empty DTR logs (no time in or no time out) -> no regular ND.
  *  - Holidays and work suspension days (same rule, HR 2026-10-19) still earn ND, but only for the
  *    hours actually worked per the DTR logs; unworked suspended/holiday hours are not paid.
- *  - Overtime ND: approved OT, encoded time in/out ∩ ND window, paid on top of OT. Minutes already
- *    counted as regular ND are not counted twice.
- *  - Rest day / leave: no regular ND (OT ND still applies).
+ *  - Only hours inside the employee's schedule count (HR 2026-10-22): early time in, staying past
+ *    the schedule and overtime earn no ND. The report no longer passes overtimes.
+ *  - Rest day / leave: no ND.
  */
 
 export const ND_INTERVALS: Interval[] = [

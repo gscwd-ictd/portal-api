@@ -43,29 +43,6 @@ export class ReportsService {
         const { companyId, employeeFullName, employeeId } = employee;
 
         const dtrEntries = await this.getDtrEntries(companyId, year, month, days, employeeId);
-        const overtimesByDate = await this.getApprovedOvertimesByDate(employeeId, year, month, days);
-
-        // approved OT on dates without a DTR entry (e.g. rest day) still earns ND
-        const dtrDates = new Set(dtrEntries.map((e) => e.dtrDate as unknown as string));
-        for (const otDate of overtimesByDate.keys()) {
-          if (!dtrDates.has(otDate))
-            dtrEntries.push({
-              dtrId: null,
-              companyId,
-              dtrDate: otDate as unknown as Date,
-              timeIn: null,
-              lunchOut: null,
-              lunchIn: null,
-              timeOut: null,
-              schedTimeIn: null,
-              schedTimeOut: null,
-              schedLunchIn: null,
-              schedLunchOut: null,
-              shift: null,
-              dtrRemarks: 'Rest Day',
-            });
-        }
-
         const dtrEntriesDetails = await Promise.all(
           dtrEntries.map(async (dtrEntry) => {
             const {
@@ -110,10 +87,10 @@ export class ReportsService {
               timeOut,
               // holidays and work suspension days earn ND for worked hours only
               isRestDayOrLeave: remarks.includes('Rest Day') || remarks.includes('Leave'),
-              overtimes: overtimesByDate.get(dtrDate) ?? [],
             });
             const nightDifferentialHours = nd.totalNdHours;
-            const otNightDifferentialHours = Math.round((nd.otNdMinutes / 60) * 100) / 100;
+            // ND counts scheduled hours only (HR 2026-10-22); OT outside the schedule earns no ND
+            const otNightDifferentialHours = 0;
 
             return {
               companyId,
@@ -235,36 +212,6 @@ export class ReportsService {
       }),
       signatories,
     };
-  }
-
-  /** approved overtime (encoded time in/out) of an employee in the period, by planned date YYYY-MM-DD */
-  private async getApprovedOvertimesByDate(
-    employeeId: string,
-    year: string,
-    month: string,
-    dayRange: number[],
-  ): Promise<Map<string, { encodedTimeIn: string; encodedTimeOut: string }[]>> {
-    const map = new Map<string, { encodedTimeIn: string; encodedTimeOut: string }[]>();
-    try {
-      const rows: { plannedDate: string; encodedTimeIn: string; encodedTimeOut: string }[] =
-        await this.dataSource.query(
-          `SELECT DATE_FORMAT(oa.planned_date,'%Y-%m-%d') plannedDate,
-                DATE_FORMAT(oacc.encoded_time_in,'%Y-%m-%d %H:%i:%s') encodedTimeIn,
-                DATE_FORMAT(oacc.encoded_time_out,'%Y-%m-%d %H:%i:%s') encodedTimeOut
-           FROM employee_monitoring.overtime_application oa
-          INNER JOIN employee_monitoring.overtime_employee oe ON oe.overtime_application_id_fk = oa.overtime_application_id
-          INNER JOIN employee_monitoring.overtime_accomplishment oacc ON oacc.overtime_employee_id_fk = oe.overtime_employee_id
-          WHERE oe.employee_id_fk = ? AND YEAR(oa.planned_date) = ? AND MONTH(oa.planned_date) = ?
-            AND DATE_FORMAT(oa.planned_date,'%d') IN (?)
-            AND oa.status <> 'cancelled' AND oacc.status = 'approved'
-            AND oacc.encoded_time_in IS NOT NULL AND oacc.encoded_time_out IS NOT NULL;`,
-          [employeeId, year, month, dayRange.map((d) => ('0' + d).slice(-2))],
-        );
-      rows.forEach((r) => map.set(r.plannedDate, [...(map.get(r.plannedDate) ?? []), r]));
-    } catch (error) {
-      console.log(error);
-    }
-    return map;
   }
 
   private async getDtrEntries(
