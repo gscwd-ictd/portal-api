@@ -67,7 +67,19 @@ describe('computeNightDifferential', () => {
     });
   });
 
-  describe('overtime', () => {
+  it('schedule only: early in / late out outside the schedule earn nothing (Capili 2026-10-04)', () => {
+    expect(
+      nd({
+        dtrDate: '2026-10-04',
+        schedTimeIn: '17:00:00',
+        schedTimeOut: '05:00:00',
+        timeIn: '16:34:00',
+        timeOut: '07:03:00',
+      }).totalNdHours,
+    ).toBe(11);
+  });
+
+  describe('overtime (util only; the report no longer passes overtimes)', () => {
     it('approved OT after a day shift inside ND window', () => {
       const r = computeNightDifferential({
         dtrDate: '2026-10-08',
